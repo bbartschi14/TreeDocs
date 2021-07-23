@@ -1,0 +1,26 @@
+.NavBar-container {
+  padding: var(--s) var(--m);
+  background-color: var(--background-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 66px;
+  box-sizing: border-box;
+  z-index: 100;
+  flex: 0 0 auto;
+  /* overflow: scroll; */
+}
+
+.NavBar-title {
+  color: var(--text-dark);
+  font-size: var(--m);
+  font-weight: 600;
+  margin: auto;
+}
+
+.NavBar-logo {
+  background-color: rgb(182, 182, 182);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}

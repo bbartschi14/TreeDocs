@@ -1,0 +1,10 @@
+.App-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+.App-lower-container {
+  flex: 1 1 auto;
+  display: flex;
+  overflow: hidden;
+}

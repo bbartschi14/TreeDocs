@@ -1,0 +1,9 @@
+.EditableTextBlock-container {
+  border-right: 1px solid rgb(202, 202, 202);
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.EditableTextBlock-container:hover {
+  border-right: 1px solid rgb(0, 0, 0);
+}

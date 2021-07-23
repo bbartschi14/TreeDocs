@@ -1,0 +1,29 @@
+.CanvasNode-container {
+  position: absolute;
+  background-color: white;
+  text-align: center;
+  padding: 12px 24px;
+  white-space: -moz-pre-wrap; /* Firefox */
+  white-space: -o-pre-wrap; /* Opera */
+  white-space: pre-wrap; /* Chrome */
+  word-wrap: break-word; /* IE */
+}
+
+.CanvasNode-selected {
+  outline: 4px dashed var(--background-main);
+  outline-offset: 4px;
+}
+
+.CanvasNode-unselected:hover {
+  outline: 2px dashed var(--background-main-transparent);
+  outline-offset: 4px;
+}
+
+.CanvasNode-nameText {
+  font-size: var(--l);
+  font-weight: var(--weight-m);
+}
+
+.CanvasNode-parentText {
+  font-size: var(--m);
+}

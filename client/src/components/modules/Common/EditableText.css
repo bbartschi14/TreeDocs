@@ -1,0 +1,66 @@
+.EditableText-container {
+  position: relative;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgb(202, 202, 202);
+}
+
+.EditableText-container:hover .EditableText-editIcon {
+  /* background-color: var(--background-main-transparent); */
+  border-radius: 4px;
+  opacity: 1;
+}
+
+.EditableText-property {
+  font-size: 12px;
+  text-align: center;
+  color: rgb(170, 170, 170);
+}
+
+.EditableText-editIcon {
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+.EditableText-iconLarge {
+  /* font-size: 24px; */
+}
+
+.EditableText-iconMedium {
+  /* font-size: 10px; */
+}
+
+.EditableText-iconSmall {
+  /* font-size: var(--s); */
+}
+
+input[type="text"] {
+  box-sizing: border-box;
+  border: none;
+  padding: 4px 4px 4px 0px;
+  width: 100%;
+  font-family: var(--main-font-family);
+}
+
+input[type="text"]:hover {
+  /* background-color: var(--grey); */
+  /* outline: rgb(160, 160, 160) solid 1px; */
+  /* opacity: 0.5; */
+  cursor: default;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  cursor: text;
+}
+
+::selection {
+  background: var(--background-main); /* WebKit/Blink Browsers */
+  color: white;
+}
+::-moz-selection {
+  background: var(--background-main); /* Gecko Browsers */
+  color: white;
+}

@@ -1,0 +1,8 @@
+.HeirarchyPanel-container {
+  background-color: white;
+  width: 220px;
+  box-sizing: border-box;
+  z-index: 50;
+  flex: 0 0 auto;
+  overflow: overlay;
+}

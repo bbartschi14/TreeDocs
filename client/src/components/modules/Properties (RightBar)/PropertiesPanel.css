@@ -1,0 +1,36 @@
+.PropertiesPanel-container {
+  width: 300px;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  overflow: scroll;
+}
+
+.PropertiesPanel-upperContainer {
+  padding: 6px;
+  /* background-color: var(--medgrey); */
+}
+
+.PropertiesPanel-innerVerticalBox {
+  padding: 0px var(--s) var(--s) var(--m);
+  box-sizing: border-box;
+
+  width: 100%;
+  max-height: 100%;
+}
+
+.PropertiesPanel-selectionName {
+  font-size: var(--l);
+  font-weight: var(--weight-m);
+}
+
+.PropertiesPanel-divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgb(206, 206, 206);
+  margin-bottom: 1px;
+}
+
+.PropertiesPanel-selectionParentName {
+  font-size: var(--m);
+  flex-grow: 1;
+}

@@ -1,0 +1,43 @@
+.CollapsablePanel-headingBar {
+  background-color: var(--medgrey);
+  height: 36px;
+  font-weight: var(--weight-m);
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.CollapsablePanel-container {
+  position: relative;
+}
+
+.CollapsablePanel-iconAbsolute {
+  position: absolute;
+  left: -14px;
+  top: 6px;
+}
+
+.CollapsablePanel-titleText {
+  padding-left: 8px;
+}
+
+.CollapsablePanel-leftSide {
+  background-color: var(--medgrey);
+  height: 100%;
+  width: var(--m);
+  left: calc(-1 * var(--m));
+  top: 0px;
+  font-weight: var(--weight-m);
+  position: absolute;
+}
+
+.CollapsablePanel-rightSide {
+  background-color: var(--medgrey);
+  height: 100%;
+  width: var(--s);
+  right: calc(-1 * var(--s));
+  top: 0px;
+  font-weight: var(--weight-m);
+  position: absolute;
+}

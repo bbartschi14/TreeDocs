@@ -1,0 +1,37 @@
+.HeirarchyItem-container {
+  padding: 6px 2px;
+  border: solid 2px rgba(0, 0, 0, 0);
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.HeirarchyItem-container:hover {
+  border: solid 2px var(--background-main);
+}
+
+.HeirarchyItem-selected {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 6px 2px;
+  font-size: 14px;
+  background-color: var(--background-main-light);
+  border: solid 2px rgba(0, 0, 0, 0);
+}
+
+.HeirarchyItem-spacer {
+  width: 24px;
+}
+
+.HeirarchyItem-arrowContainer {
+  width: 24px;
+  position: relative;
+}
+
+.HeirarchyItem-arrow {
+  position: absolute;
+  left: -2px;
+  top: -3px;
+  opacity: 0.7;
+}
