@@ -21,7 +21,7 @@ class GraphTitle extends Component {
   };
 
   render() {
-    console.log(JSON.stringify(this.props.currentGraph));
+    //console.log(JSON.stringify(this.props.currentGraph));
     return (
       <div className="GraphTitle-container">
         <div className="GraphTitle-titleWrapper">

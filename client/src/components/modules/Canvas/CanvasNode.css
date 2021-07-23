@@ -1,12 +1,27 @@
+.CanvasNode-base {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  word-wrap: break-word; /* IE */
+}
+
 .CanvasNode-container {
   position: absolute;
   background-color: white;
-  text-align: center;
-  padding: 12px 24px;
-  white-space: -moz-pre-wrap; /* Firefox */
-  white-space: -o-pre-wrap; /* Opera */
-  white-space: pre-wrap; /* Chrome */
-  word-wrap: break-word; /* IE */
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.CanvasNode-innerContainer {
+  padding: 12px 24px 18px 24px;
+  white-space: nowrap; /* Chrome */
 }
 
 .CanvasNode-selected {
@@ -26,4 +41,20 @@
 
 .CanvasNode-parentText {
   font-size: var(--m);
+}
+
+.CanvasNode-circleContainer {
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.CanvasNode-input {
+  top: -20px;
+}
+
+.CanvasNode-output {
+  bottom: -20px;
 }

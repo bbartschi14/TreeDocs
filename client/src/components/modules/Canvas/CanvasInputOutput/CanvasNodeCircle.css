@@ -1,0 +1,10 @@
+.CanvasNodeCircle-container {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--background-main);
+}
+
+.CanvasNodeCircle-container:hover {
+  opacity: 0.75;
+}

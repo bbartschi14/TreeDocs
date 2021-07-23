@@ -5,6 +5,7 @@ import PropertiesPanel from "../modules/Properties (RightBar)/PropertiesPanel.js
 import GraphTitle from "../modules/NavBar/GraphTitle.js";
 import nextId from "react-id-generator";
 import "./GraphEditor.css";
+import { connect } from "mongoose";
 
 /**
  * Page component for graph editing.
@@ -14,11 +15,19 @@ import "./GraphEditor.css";
  */
 class GraphEditor extends Component {
   /**
+   * @typedef FunctionObject
+   * @property {ClassObject} parent
+   * @property {string} _id
+   * @property {string} name
+   */
+
+  /**
    * @typedef ClassObject
    * @property {string} _id
    * @property {string} name
    * @property {string} parent
    * @property {string} description
+   * @property {FunctionObject[]} functions
    */
 
   /**
@@ -29,17 +38,25 @@ class GraphEditor extends Component {
    */
 
   /**
+   * @typedef ConnectionObject // The connecton object id is a concatenation of the startNode.classObject._id and endNode.classObject._id
+   * @property {string} startId
+   * @property {string} endId
+   * @property {bool} startIsInput determines the order of input->output or output->input
+   */
+
+  /**
    * @typedef GraphObject
    * @property {string} _id
    * @property {string} name
    * @property {NodeObject[]} nodes array of nodes contained within this graph
+   * @property {ConnectionObject[]} connections array of connections in this graph
    */
 
   constructor(props) {
     super(props);
     this.state = {
       selectedNode: null,
-      selectedGraph: { _id: "001", name: "SampleGraph", nodes: [] },
+      selectedGraph: { _id: "001", name: "SampleGraph", nodes: [], connections: [] },
     };
   }
 
@@ -68,6 +85,7 @@ class GraphEditor extends Component {
     updatedGraph.nodes = this.state.selectedGraph.nodes.concat([newNode]);
     this.setState({
       selectedGraph: updatedGraph,
+      selectedNode: newNode,
     });
   };
 
@@ -106,6 +124,41 @@ class GraphEditor extends Component {
     });
   };
 
+  /********** Connections ***********/
+  tryCreateConnection = (connectionObj) => {
+    // Filter any connections that are the same two nodes
+    let existingConnections = this.state.selectedGraph.connections.filter(function (conn) {
+      if (conn.startIsInput == connectionObj.startIsInput) {
+        if (conn.startId == connectionObj.startId && conn.endId == connectionObj.endId) {
+          return true;
+        }
+      } else {
+        if (conn.startId == connectionObj.endId && conn.endId == connectionObj.startId) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    // If the connection already exists, don't create the new one
+    if (existingConnections.length > 0) {
+      console.log("Connection already exists");
+    } else {
+      // Create the new one
+      console.log("Connection added");
+      this.addConnectionToSelectedGraph(connectionObj);
+    }
+  };
+
+  addConnectionToSelectedGraph = (newConnection) => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.connections = this.state.selectedGraph.connections.concat([newConnection]);
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+  };
+  /*************** */
+
   render() {
     return (
       <>
@@ -119,6 +172,8 @@ class GraphEditor extends Component {
           selectNode={this.selectNode}
           selectedGraph={this.state.selectedGraph}
           selectedNode={this.state.selectedNode}
+          tryCreateConnection={this.tryCreateConnection}
+          updateSelectedNode={this.updateSelectedNode}
         />
         <PropertiesPanel
           selectedNode={this.state.selectedNode}
