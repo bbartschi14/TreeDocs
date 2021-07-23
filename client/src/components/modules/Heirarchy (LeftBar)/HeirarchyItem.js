@@ -25,28 +25,37 @@ class HeirarchyItem extends Component {
     this.props.onItemClicked(event);
   };
 
+  toggleOpen = (event) => {
+    this.setState({ isOpen: !this.state.isOpen });
+  };
+
   render() {
     let indentSpacer = [...Array(this.props.indentLevel)].map((e, i) => (
       <div className="HeirarchyItem-spacer" key={i}></div>
     ));
-
     return (
-      <div
-        className={this.props.isSelected ? "HeirarchyItem-selected" : "HeirarchyItem-container"}
-        onClick={this.handleOnClick}
-      >
-        <div className="u-flex">
-          {indentSpacer}
-          <div className="HeirarchyItem-arrowContainer">
-            {this.state.isOpen ? (
-              <ArrowDropDownIcon className="HeirarchyItem-arrow" />
-            ) : (
-              <ArrowRightIcon className="HeirarchyItem-arrow" />
-            )}
+      <>
+        <div
+          className={this.props.isSelected ? "HeirarchyItem-selected" : "HeirarchyItem-container"}
+          onClick={this.handleOnClick}
+        >
+          <div className="u-flex">
+            {indentSpacer}
+            <div className="HeirarchyItem-arrowContainer">
+              {this.props.children != null &&
+              (this.props.children[0] != null || this.props.children[1] != null) ? (
+                <ArrowRightIcon
+                  className="HeirarchyItem-arrow"
+                  onClick={this.toggleOpen}
+                  style={this.state.isOpen ? { transform: "rotate(90deg)" } : {}}
+                />
+              ) : null}
+            </div>
+            <div className="u-noselect">{this.props.name}</div>
           </div>
-          <div className="u-noselect">{this.props.name}</div>
         </div>
-      </div>
+        {this.state.isOpen ? this.props.children : null}
+      </>
     );
   }
 }

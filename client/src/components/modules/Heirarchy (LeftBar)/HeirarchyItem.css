@@ -21,7 +21,7 @@
 }
 
 .HeirarchyItem-spacer {
-  width: 24px;
+  width: 16px;
 }
 
 .HeirarchyItem-arrowContainer {
@@ -34,4 +34,9 @@
   left: -2px;
   top: -3px;
   opacity: 0.7;
+}
+
+.HeirarchyItem-arrow:hover {
+  cursor: pointer;
+  background-color: rgba(148, 148, 148, 0.384);
 }

@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import HeirarchyItem from "./HeirarchyItem";
+import HeirarchyFunctionItem from "./HeirarchyFunctionItem";
+import HeirarchyVariableItem from "./HeirarchyVariableItem";
 
 /**
  * Class Item component for the heirarchy list.
@@ -19,6 +21,8 @@ class HeirarchyClassItem extends Component {
     this.props.onClassClicked(this.props.classObject);
   };
 
+  handleEmptyReply = (event) => {};
+
   render() {
     return (
       <HeirarchyItem
@@ -26,7 +30,36 @@ class HeirarchyClassItem extends Component {
         isSelected={this.props.isSelected}
         indentLevel={this.props.indentLevel}
         onItemClicked={this.handleClassSelected}
-      />
+      >
+        {this.props.classObject.functions.length > 0
+          ? [
+              <HeirarchyItem name="Functions" indentLevel={1} onItemClicked={this.handleEmptyReply}>
+                {this.props.classObject.functions.map((funcObj) => (
+                  <HeirarchyFunctionItem
+                    key={`FunctionItem_${funcObj._id}`}
+                    functionObject={funcObj}
+                    isSelected={false}
+                    indentLevel={2}
+                  />
+                ))}
+              </HeirarchyItem>,
+            ]
+          : null}
+        {this.props.classObject.variables.length > 0
+          ? [
+              <HeirarchyItem name="Variables" indentLevel={1} onItemClicked={this.handleEmptyReply}>
+                {this.props.classObject.variables.map((varObj) => (
+                  <HeirarchyVariableItem
+                    key={`VariableItem_${varObj._id}`}
+                    variableObject={varObj}
+                    isSelected={false}
+                    indentLevel={2}
+                  />
+                ))}
+              </HeirarchyItem>,
+            ]
+          : null}
+      </HeirarchyItem>
     );
   }
 }

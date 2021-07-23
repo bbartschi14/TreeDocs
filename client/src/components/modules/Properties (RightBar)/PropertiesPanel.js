@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import EditableText from "../Common/EditableText.js";
 import EditableTextBlock from "../Common/EditableTextBlock.js";
 import CollapsablePanel from "../Common/CollapsablePanel.js";
+import FunctionItem from "./FunctionItem.js";
+import VariableItem from "./VariableItem.js";
 import "./PropertiesPanel.css";
+import AddPropertyButton from "./AddPropertyButton.js";
+import nextId from "react-id-generator";
 
 /**
  * Panel component for the right-side properties. Will display
@@ -13,8 +17,6 @@ import "./PropertiesPanel.css";
  *  - Function: should allow definition of return type and arguments
  *
  * Proptypes
- * @param TODO {ProjectObject} current working project
- * @param TODO {GraphObject} current working graph in working project
  * @param {NodeObject} selectedNode current selectedNode
  * @param {(NodeObject) => ()} updateSelectedNode callback function passing in the new updated selected node
  */
@@ -39,6 +41,42 @@ class PropertiesPanel extends Component {
     let updatedObject = Object.assign({}, this.props.selectedNode); // creating copy of selected node prop
     updatedObject.classObject.description = event.currentTarget.textContent; // update the parent property, assign a new value
     this.props.updateSelectedNode(updatedObject);
+  };
+
+  handleAddFunctionToClass = (newFunction) => {
+    let updatedNode = Object.assign({}, this.props.selectedNode);
+    updatedNode.classObject.functions = this.props.selectedNode.classObject.functions.concat([
+      newFunction,
+    ]);
+    this.props.updateSelectedNode(updatedNode);
+  };
+
+  handleAddVariableToClass = (newVariable) => {
+    let updatedNode = Object.assign({}, this.props.selectedNode);
+    updatedNode.classObject.variables = this.props.selectedNode.classObject.variables.concat([
+      newVariable,
+    ]);
+    this.props.updateSelectedNode(updatedNode);
+  };
+
+  handleAddFunctionButtonClicked = () => {
+    let id = nextId();
+    let newFunction = {
+      parent: this.props.selectedNode.classObject,
+      name: "NewFunction_" + id,
+      _id: id,
+    };
+    this.handleAddFunctionToClass(newFunction);
+  };
+
+  handleAddVariableButtonClicked = () => {
+    let id = nextId();
+    let newVariable = {
+      parent: this.props.selectedNode.classObject,
+      name: "NewVariable_" + id,
+      _id: id,
+    };
+    this.handleAddVariableToClass(newVariable);
   };
 
   render() {
@@ -81,13 +119,25 @@ class PropertiesPanel extends Component {
 
             <CollapsablePanel title="Functions">
               <div style={{ height: "8px" }}></div>
-
+              {this.props.selectedNode.classObject.functions.map((func) => (
+                <FunctionItem functionObject={func} key={func._id} />
+              ))}
+              <AddPropertyButton
+                buttonText={"Add Function"}
+                onAddClicked={this.handleAddFunctionButtonClicked}
+              />
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
 
             <CollapsablePanel title="Variables">
               <div style={{ height: "8px" }}></div>
-
+              {this.props.selectedNode.classObject.variables.map((variable) => (
+                <VariableItem variableObject={variable} key={variable._id} />
+              ))}
+              <AddPropertyButton
+                buttonText={"Add Variable"}
+                onAddClicked={this.handleAddVariableButtonClicked}
+              />
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
           </div>

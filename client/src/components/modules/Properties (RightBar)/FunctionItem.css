@@ -1,0 +1,9 @@
+.FunctionItem-container {
+  padding: var(--s);
+  box-sizing: border-box;
+  border: solid 2px transparent;
+}
+
+.FunctionItem-container:hover {
+  border: solid 2px var(--background-main);
+}

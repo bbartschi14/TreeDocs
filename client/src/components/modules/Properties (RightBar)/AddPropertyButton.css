@@ -1,0 +1,15 @@
+.AddPropertyButton-container {
+  height: 24px;
+  background-color: var(--background-main);
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: var(--weight-m);
+}
+
+.AddPropertyButton-container:hover {
+  cursor: pointer;
+  opacity: 0.75;
+}

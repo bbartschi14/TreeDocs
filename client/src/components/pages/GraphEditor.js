@@ -15,6 +15,13 @@ import { connect } from "mongoose";
  */
 class GraphEditor extends Component {
   /**
+   * @typedef VariableObject
+   * @property {ClassObject} parent
+   * @property {string} _id
+   * @property {string} name
+   */
+
+  /**
    * @typedef FunctionObject
    * @property {ClassObject} parent
    * @property {string} _id
@@ -28,6 +35,7 @@ class GraphEditor extends Component {
    * @property {string} parent
    * @property {string} description
    * @property {FunctionObject[]} functions
+   * @property {VariableObject[]} variables
    */
 
   /**
@@ -73,6 +81,8 @@ class GraphEditor extends Component {
         name: "NewClass-" + id,
         parent: "NewParent-" + id,
         description: "Blank Description",
+        functions: [],
+        variables: [],
       },
       isAttachedToCursor: true,
       savedPosition: startPosition,
