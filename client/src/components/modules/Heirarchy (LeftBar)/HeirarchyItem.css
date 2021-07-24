@@ -20,13 +20,18 @@
   border: solid 2px rgba(0, 0, 0, 0);
 }
 
+.HeirarchyItem-boundary {
+}
+
 .HeirarchyItem-spacer {
   width: 16px;
+  flex-shrink: 0;
 }
 
 .HeirarchyItem-arrowContainer {
   width: 24px;
   position: relative;
+  flex-shrink: 0;
 }
 
 .HeirarchyItem-arrow {
@@ -39,4 +44,11 @@
 .HeirarchyItem-arrow:hover {
   cursor: pointer;
   background-color: rgba(148, 148, 148, 0.384);
+}
+
+.HeirarchyItem-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0px;
 }

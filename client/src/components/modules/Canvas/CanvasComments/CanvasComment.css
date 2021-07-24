@@ -1,0 +1,35 @@
+.CanvasComment-container {
+  position: absolute;
+  pointer-events: auto;
+  background-color: rgba(255, 253, 134, 0.692);
+  padding: 24px;
+  outline-offset: 0px;
+  transition: outline-offset 0.1s;
+}
+
+.CanvasComment-container:hover {
+  outline: 2px dashed var(--background-main-transparent);
+  outline-offset: 4px;
+}
+
+.CanvasComment-containerSelected {
+  position: absolute;
+  pointer-events: auto;
+  background-color: rgba(255, 253, 134, 0.692);
+  padding: 24px;
+  outline: 4px dashed var(--background-main);
+  outline-offset: 4px;
+}
+
+.CanvasComment-resizer {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 10px;
+  height: 10px;
+  background-color: rgba(0, 0, 0, 0.466);
+  cursor: nwse-resize;
+}
+
+.CanvasComment-text {
+}

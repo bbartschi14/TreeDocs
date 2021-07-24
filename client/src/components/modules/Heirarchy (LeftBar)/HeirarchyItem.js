@@ -39,7 +39,7 @@ class HeirarchyItem extends Component {
           className={this.props.isSelected ? "HeirarchyItem-selected" : "HeirarchyItem-container"}
           onClick={this.handleOnClick}
         >
-          <div className="u-flex">
+          <div className="HeirarchyItem-boundary u-flex">
             {indentSpacer}
             <div className="HeirarchyItem-arrowContainer">
               {this.props.children != null &&
@@ -51,7 +51,7 @@ class HeirarchyItem extends Component {
                 />
               ) : null}
             </div>
-            <div className="u-noselect">{this.props.name}</div>
+            <span className="HeirarchyItem-text u-noselect">{this.props.name}</span>
           </div>
         </div>
         {this.state.isOpen ? this.props.children : null}

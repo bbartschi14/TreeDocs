@@ -3,6 +3,7 @@
   height: 30px;
   border-radius: 50%;
   background-color: var(--background-main);
+  transition: all 0.2s;
 }
 
 .CanvasNodeCircle-container:hover {

@@ -53,23 +53,45 @@ class GraphEditor extends Component {
    */
 
   /**
+   * @typedef CommentObject
+   * @property {string} _id
+   * @property {IntPoint} savedPosition
+   * @property {IntPoint} savedSize
+   * @property {string} text
+   *
+   */
+
+  /**
    * @typedef GraphObject
    * @property {string} _id
    * @property {string} name
    * @property {NodeObject[]} nodes array of nodes contained within this graph
    * @property {ConnectionObject[]} connections array of connections in this graph
+   * @property {CommentObject[]} comments array of comments
+   */
+
+  /**
+   * @typedef ToastObject
+   * @property {int} timeCreated
+   * @property {string} message
    */
 
   constructor(props) {
     super(props);
     this.state = {
-      selectedNode: null,
-      selectedGraph: { _id: "001", name: "SampleGraph", nodes: [], connections: [] },
+      selectedObject: null,
+      selectedObjectType: "None", // "None", "Node", "Connection", "Comment"
+      selectedGraph: { _id: "001", name: "SampleGraph", nodes: [], connections: [], comments: [] },
+      propertiesPanelWidth: 300,
+      heirarchyPanelWidth: 260,
+      toastNotifications: [],
+      isDeleteActive: true,
     };
   }
 
   componentDidMount() {
     document.title = "TreeDocs";
+    document.addEventListener("keydown", this.handleKeyPress);
   }
 
   createCanvasNode = (startPosition) => {
@@ -90,19 +112,31 @@ class GraphEditor extends Component {
     this.addNodeToSelectedGraph(newCanvasNode);
   };
 
+  setDeleteActive = (value) => {
+    this.setState({ isDeleteActive: value });
+  };
+
   addNodeToSelectedGraph = (newNode) => {
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
     updatedGraph.nodes = this.state.selectedGraph.nodes.concat([newNode]);
     this.setState({
       selectedGraph: updatedGraph,
-      selectedNode: newNode,
     });
+    this.selectNode(newNode);
   };
 
   selectNode = (nodeObj) => {
     //console.log("Selecting: " + JSON.stringify(nodeObj));
     this.setState({
-      selectedNode: nodeObj,
+      selectedObject: nodeObj,
+      selectedObjectType: "Node",
+    });
+  };
+
+  selectConnection = (connectionObj) => {
+    this.setState({
+      selectedObject: connectionObj,
+      selectedObjectType: "Connection",
     });
   };
 
@@ -123,9 +157,9 @@ class GraphEditor extends Component {
       node.classObject._id == updatedNode.classObject._id ? updatedNode : node
     );
     this.setState({
-      selectedNode: updatedNode,
       selectedGraph: updatedGraph,
     });
+    this.selectNode(updatedNode);
   };
 
   updateSelectedGraph = (updatedGraph) => {
@@ -169,25 +203,174 @@ class GraphEditor extends Component {
   };
   /*************** */
 
+  /******** Comments ***************/
+
+  createCommentObject = (startPosition) => {
+    // Creates a new node, then adds it to the selected graph
+    let id = nextId();
+    let newComment = {
+      _id: id,
+      savedPosition: startPosition,
+      savedSize: { x: 100, y: 100 },
+      text: "Put Comment Text Here",
+    };
+    this.addCommentToSelectedGraph(newComment);
+  };
+
+  addCommentToSelectedGraph = (newComment) => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.comments = this.state.selectedGraph.comments.concat([newComment]);
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+  };
+
+  updateSelectedComment = (updatedComment) => {
+    // Requires that we set both the selected state and the array
+    // of the selected graph
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.comments = this.state.selectedGraph.comments.map((comment) =>
+      comment._id == updatedComment._id ? updatedComment : comment
+    );
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+    this.selectComment(updatedComment);
+  };
+
+  selectComment = (commentObj) => {
+    //console.log("Selecting: " + JSON.stringify(commentObj));
+    this.setState({
+      selectedObject: commentObj,
+      selectedObjectType: "Comment",
+    });
+  };
+
+  /******************************* */
+
+  /******** Panel Resizing *********/
+  handleResizeHeirarchyPanel = (amount) => {
+    this.setState({ heirarchyPanelWidth: this.state.heirarchyPanelWidth + amount });
+  };
+
+  handleResizePropertiesPanel = (amount) => {
+    this.setState({ propertiesPanelWidth: this.state.propertiesPanelWidth - amount });
+  };
+  /********************************/
+
+  /******* Hotkey Handling *************/
+
+  handleKeyPress = (event) => {
+    if (event.key == "Delete" && this.state.isDeleteActive) {
+      this.deleteSelection();
+    }
+  };
+
+  deleteSelection = () => {
+    if (this.state.selectedObject != null) {
+      if (this.state.selectedObjectType == "Node") {
+        //Delete node
+        this.deleteSelectedNode();
+      } else if (this.state.selectedObjectType == "Connection") {
+        // Delete connection
+        this.deleteSelectedConnection();
+      }
+    }
+  };
+
+  deleteSelectedNode = () => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.nodes = this.state.selectedGraph.nodes.filter(
+      (node) => node.classObject._id != this.state.selectedObject.classObject._id
+    );
+
+    // Delete any associated connections too
+    updatedGraph.connections = this.state.selectedGraph.connections.filter(
+      (conn) =>
+        conn.startId != this.state.selectedObject.classObject._id &&
+        conn.endId != this.state.selectedObject.classObject._id
+    );
+
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+    //this.addToastNotification("Node deleted");
+    this.clearSelection();
+  };
+
+  deleteSelectedConnection = () => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.connections = this.state.selectedGraph.connections.filter(
+      (conn) =>
+        conn.startId != this.state.selectedObject.startId ||
+        conn.endId != this.state.selectedObject.endId
+    );
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+    //this.addToastNotification("Connection deleted");
+
+    this.clearSelection();
+  };
+
+  clearSelection = () => {
+    this.setState({ selectedObject: null, selectedObjectType: "None" });
+  };
+
+  /********************* */
+
+  addToastNotification = (text) => {
+    this.setState({
+      toastNotifications: this.state.toastNotifications.concat([
+        { message: text, timeCreated: Date.now() },
+      ]),
+    });
+  };
+
+  removeToastNotification = (toastObject) => {
+    let updatedToasts = Object.assign({}, this.state.toastNotifications);
+    updatedToasts = this.state.toastNotifications.filter(
+      (toast) => toast.timeCreated != toastObject.timeCreated
+    );
+    this.setState({
+      toastNotifications: updatedToasts,
+    });
+  };
+
   render() {
     return (
       <>
         <HeirarchyPanel
           selectedGraph={this.state.selectedGraph}
-          selectedNode={this.state.selectedNode}
+          selectedObject={this.state.selectedObject}
+          selectedObjectType={this.state.selectedObjectType}
           selectClass={this.selectClassObject}
+          panelWidth={this.state.heirarchyPanelWidth}
+          handleResize={this.handleResizeHeirarchyPanel}
         />
         <CanvasPanel
           createNodeObject={this.createCanvasNode}
+          createCommentObject={this.createCommentObject}
           selectNode={this.selectNode}
           selectedGraph={this.state.selectedGraph}
-          selectedNode={this.state.selectedNode}
+          selectedObject={this.state.selectedObject}
+          selectedObjectType={this.state.selectedObjectType}
           tryCreateConnection={this.tryCreateConnection}
           updateSelectedNode={this.updateSelectedNode}
+          onConnectionSelected={this.selectConnection}
+          toastNotifications={this.state.toastNotifications}
+          addToastNotification={this.addToastNotification}
+          removeToastNotification={this.removeToastNotification}
+          setDeleteActive={this.setDeleteActive}
+          selectComment={this.selectComment}
+          updateSelectedComment={this.updateSelectedComment}
         />
         <PropertiesPanel
-          selectedNode={this.state.selectedNode}
+          selectedObject={this.state.selectedObject}
+          selectedObjectType={this.state.selectedObjectType}
           updateSelectedNode={this.updateSelectedNode}
+          panelWidth={this.state.propertiesPanelWidth}
+          handleResize={this.handleResizePropertiesPanel}
         />
         <GraphTitle
           updateSelectedGraph={this.updateSelectedGraph}

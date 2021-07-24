@@ -7,3 +7,8 @@
 .FunctionItem-container:hover {
   border: solid 2px var(--background-main);
 }
+
+.FunctionItem-text {
+  font-size: var(--m);
+  font-weight: var(--weight-s);
+}

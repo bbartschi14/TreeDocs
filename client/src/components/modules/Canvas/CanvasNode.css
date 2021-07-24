@@ -7,6 +7,7 @@
   text-align: center;
 
   word-wrap: break-word; /* IE */
+  pointer-events: auto;
 }
 
 .CanvasNode-container {
@@ -27,6 +28,11 @@
 .CanvasNode-selected {
   outline: 4px dashed var(--background-main);
   outline-offset: 4px;
+}
+
+.CanvasNode-unselected {
+  outline-offset: 0px;
+  transition: outline-offset 0.1s;
 }
 
 .CanvasNode-unselected:hover {

@@ -2,8 +2,11 @@ import React, { Component } from "react";
 import CanvasBackgroundGrid from "./CanvasBackgroundGrid";
 import CanvasConnectionsContainer from "./CanvasConnectionsContainer";
 import CanvasNode from "./CanvasNode.js";
+import nextId from "react-id-generator";
 
 import "./CanvasPanel.css";
+import CanvasSnackbar from "./CanvasSnackbar";
+import CanvasCommentsContainer from "./CanvasComments/CanvasCommentsContainer";
 
 /**
  * Panel component for the main center canvas. Will be used to control
@@ -15,10 +18,23 @@ import "./CanvasPanel.css";
  * @param {GraphObject} selectedGraph working graph in working project
  * @param {(IntPoint) => ()} createNodeObject function that creates a new node object and attaches it to the cursor at the position passed
  * @param {(NodeObject) => ()} selectNode function to select a node
- * @param {NodeObject} selectedNode
+ * @param {SelectableObject} selectedObject
+ * @param {string} selectedObjectType
  * @param {(NodeObject) => ()} updateSelectedNode function to update node
+ * @param {[ToastObject]} toastNotifications
+ * @param {string} addToastNotification
+ * @param {ToastObject} removeToastNotification
+ * @param {(bool)=>()} setDeleteActive
+ *
  * Connection Proptypes
  * @param {(ConnectionObject) => ()} tryCreateConnection callback function for letting the Editor know that we've indicated a connection between an output and input
+ * @param {(ConnectionObject => ())} onConnectionSelected
+ *
+ * Comments
+ * @param {(IntPoint) => ()} createCommentObject
+ * @param {(CommentObject) => ()} updateSelectedComment
+ * @param {(CommentObject) => ()} selectComment
+ *
  */
 class CanvasPanel extends Component {
   constructor(props) {
@@ -29,13 +45,17 @@ class CanvasPanel extends Component {
       connectionStartNode: null,
       connectionStartType: false, // True if input, false if output
       hoveredNode: null,
+      hoveredNodeIsInput: false,
       currentPlacingPosition: { x: 0, y: 0 },
+      transformState: "none", // "none", "panning"
+      mousePos: { x: 0, y: 0 },
     };
     this.containerRef = React.createRef();
     this.scrollingRef = React.createRef();
   }
 
   handleNewNodeButtonClicked = (event) => {
+    this.props.setDeleteActive(false);
     this.props.createNodeObject({
       x: event.pageX - this.containerRef.current.offsetLeft + this.scrollingRef.current.scrollLeft,
       y: event.pageY - this.containerRef.current.offsetTop + this.scrollingRef.current.scrollTop,
@@ -49,7 +69,7 @@ class CanvasPanel extends Component {
 
   handleNodePositionChanged = (newPosition) => {
     //console.log(newPosition);
-    let updatedObject = Object.assign({}, this.props.selectedNode); // creating copy of selected node prop
+    let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
     updatedObject.savedPosition = newPosition; // update the parent property, assign a new value
     this.props.updateSelectedNode(updatedObject);
   };
@@ -85,6 +105,39 @@ class CanvasPanel extends Component {
     e.returnValue = false;
   }
 
+  /***** Panning Functionality */
+
+  handleMiddleMouseDown = (event) => {
+    if (event.button === 1) {
+      this.setState({ transformState: "panning", mousePos: { x: event.pageX, y: event.pageY } });
+      event.preventDefault();
+    }
+  };
+
+  handleMiddleMouseMove = (event) => {
+    let delta = { x: event.pageX - this.state.mousePos.x, y: event.pageY - this.state.mousePos.y };
+    this.scrollingRef.current.scrollLeft -= delta.x;
+    this.scrollingRef.current.scrollTop -= delta.y;
+
+    this.setState({ mousePos: { x: event.pageX, y: event.pageY } });
+  };
+
+  handleMiddleMouseUp = (event) => {
+    this.setState({ transformState: "none" });
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.transformState == "panning" && prevState.transformState == "none") {
+      document.addEventListener("mousemove", this.handleMiddleMouseMove);
+      document.addEventListener("mouseup", this.handleMiddleMouseUp);
+    } else if (this.state.transformState == "none" && prevState.transformState == "panning") {
+      document.removeEventListener("mousemove", this.handleMiddleMouseMove);
+      document.removeEventListener("mouseup", this.handleMiddleMouseUp);
+    }
+  }
+
+  /*************************** */
+
   /***** Connection creation functions */
   // Basically, keep track of the start node and connection type. On hovering over other circles, if the connection type is
   // different than the start type, we keep track of that second node. On release, we send those two nodes up to the
@@ -109,11 +162,17 @@ class CanvasPanel extends Component {
       let startNodeId = this.state.connectionStartNode.classObject._id;
       let endNodeId = this.state.hoveredNode.classObject._id;
       if (startNodeId != endNodeId) {
-        this.props.tryCreateConnection({
-          startId: startNodeId,
-          endId: endNodeId,
-          startIsInput: this.state.connectionStartType,
-        });
+        if (this.state.hoveredNodeIsInput != this.state.connectionStartType) {
+          this.props.tryCreateConnection({
+            startId: startNodeId,
+            endId: endNodeId,
+            startIsInput: this.state.connectionStartType,
+          });
+        } else {
+          this.props.addToastNotification("Must connect inputs to outputs");
+        }
+      } else {
+        this.props.addToastNotification("Can't connect node to itself");
       }
     }
     document.removeEventListener("mouseup", this.handleMouseUpWhileConnecting);
@@ -122,13 +181,27 @@ class CanvasPanel extends Component {
 
   handleNodeConnectionHovered = (nodeObject, isInputCircle, isHovered) => {
     let newNode = null;
-    if (isHovered && isInputCircle != this.state.connectionStartType) {
+    if (isHovered) {
+      //isInputCircle != this.state.connectionStartType) {
       newNode = nodeObject;
     }
-    this.setState({ hoveredNode: newNode });
+    this.setState({ hoveredNode: newNode, hoveredNodeIsInput: isInputCircle });
   };
 
   /***************** */
+
+  handleCommentPositionChanged = (newPosition) => {
+    //console.log(newPosition);
+    let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
+    updatedObject.savedPosition = newPosition; // update the parent property, assign a new value
+    this.props.updateSelectedComment(updatedObject);
+  };
+
+  handleCommentSizeChanged = (newSize) => {
+    let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
+    updatedObject.savedSize = newSize; // update the parent property, assign a new value
+    this.props.updateSelectedComment(updatedObject);
+  };
 
   render() {
     let nodesList = null;
@@ -138,11 +211,15 @@ class CanvasPanel extends Component {
         nodeObject={nodeObj}
         isAttachedToCursor={nodeObj.isAttachedToCursor}
         savedPosition={nodeObj.savedPosition}
-        isSelected={nodeObj.classObject._id == this.props.selectedNode?.classObject._id}
+        isSelected={
+          this.props.selectedObjectType == "Node" &&
+          nodeObj.classObject._id == this.props.selectedObject?.classObject._id
+        }
         selectNodeWithGrid={this.selectNodeWithGrid}
         createConnectionFromNode={this.createConnectionFromNode}
         handleNodeConnectionHovered={this.handleNodeConnectionHovered}
         handleNodePositionChanged={this.handleNodePositionChanged}
+        setDeleteActive={this.props.setDeleteActive}
       />
     ));
 
@@ -153,6 +230,8 @@ class CanvasPanel extends Component {
         onWheelCapture={this.handleScroll}
         onMouseEnter={this.disableScroll}
         onMouseLeave={this.enableScroll}
+        onMouseDown={this.handleMiddleMouseDown}
+        style={this.state.transformState == "panning" ? { cursor: "grab" } : {}}
       >
         <div className="CanvasPanel-overflow" ref={this.scrollingRef}>
           <div
@@ -161,14 +240,37 @@ class CanvasPanel extends Component {
           >
             <CanvasBackgroundGrid gridSize={60} />
 
+            <CanvasCommentsContainer
+              createCommentObject={this.props.createCommentObject}
+              selectedGraph={this.props.selectedGraph}
+              selectedObject={this.props.selectedObject}
+              selectedObjectType={this.props.selectedObjectType}
+              handleCommentPositionChanged={this.handleCommentPositionChanged}
+              handleCommentSizeChanged={this.handleCommentSizeChanged}
+              selectComment={this.props.selectComment}
+            />
+
             <CanvasConnectionsContainer
               selectedGraph={this.props.selectedGraph}
               connectionStartNode={this.state.connectionStartNode}
               connectionStartType={this.state.connectionStartType}
               currentPlacingPosition={this.state.currentPlacingPosition}
+              onConnectionSelected={this.props.onConnectionSelected}
+              selectedObject={this.props.selectedObject}
+              selectedObjectType={this.props.selectedObjectType}
             />
+
             <div className="CanvasPanel-nodeContainer">{nodesList}</div>
           </div>
+        </div>
+        <div className="CanvasPanel-snackbarContainer">
+          {this.props.toastNotifications.map((toastObject, i) => (
+            <CanvasSnackbar
+              toastObject={toastObject}
+              key={nextId()}
+              removeToastNotification={this.props.removeToastNotification}
+            />
+          ))}
         </div>
 
         <div

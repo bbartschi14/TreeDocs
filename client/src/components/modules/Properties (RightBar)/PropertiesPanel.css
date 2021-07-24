@@ -1,8 +1,16 @@
-.PropertiesPanel-container {
+.PropertiesPanel-outerContainer {
   width: 300px;
   box-sizing: border-box;
   flex: 0 0 auto;
+  overflow: visible;
+  position: relative;
+}
+
+.PropertiesPanel-container {
+  height: 100%;
+  width: 100%;
   overflow: overlay;
+  position: relative;
 }
 
 .PropertiesPanel-upperContainer {
@@ -33,4 +41,18 @@
 .PropertiesPanel-selectionParentName {
   font-size: var(--m);
   flex-grow: 1;
+}
+
+.PropertiesPanel-resizeHandle {
+  position: absolute;
+  left: -8px;
+  top: 0px;
+  height: 100%;
+  width: 16px;
+  border-left: 4px solid rgb(170, 170, 170);
+  opacity: 0;
+}
+
+.PropertiesPanel-resizeHandle:hover {
+  opacity: 0.5;
 }

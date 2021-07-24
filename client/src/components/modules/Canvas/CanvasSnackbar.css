@@ -1,0 +1,29 @@
+.CanvasSnackbar-container {
+  height: 30px;
+  background-color: rgb(116, 57, 57);
+  padding: var(--s) var(--m);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: var(--weight-m);
+  color: white;
+  margin-right: 4px;
+  transition: all 0.25s;
+  position: relative;
+}
+
+.CanvasSnackbar-active {
+  transform: translateY(0px);
+}
+
+.CanvasSnackbar-fading {
+  opacity: 0;
+}
+
+.CanvasSnackbar-fill {
+  left: 0;
+  position: absolute;
+  background-color: var(--background-secondary);
+  height: 100%;
+}

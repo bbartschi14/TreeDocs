@@ -1,8 +1,29 @@
-.HeirarchyPanel-container {
+.HeirarchyPanel-outerContainer {
   background-color: white;
-  width: 220px;
   box-sizing: border-box;
   z-index: 50;
   flex: 0 0 auto;
+  overflow: visible;
+  position: relative;
+}
+
+.HeirarchyPanel-container {
+  height: 100%;
+  width: 100%;
   overflow: overlay;
+  position: relative;
+}
+
+.HeirarchyPanel-resizeHandle {
+  position: absolute;
+  right: -8px;
+  top: 0px;
+  height: 100%;
+  width: 16px;
+  border-right: 4px solid rgb(170, 170, 170);
+  opacity: 0;
+}
+
+.HeirarchyPanel-resizeHandle:hover {
+  opacity: 0.5;
 }

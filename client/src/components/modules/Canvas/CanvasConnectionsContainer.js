@@ -1,13 +1,17 @@
 import React, { Component } from "react";
 import "./CanvasConnectionsContainer.css";
+import CanvasPathConnection from "./CanvasPathConnection";
 
 /**
  * SVG container component for all the line connections
  *
  * Proptypes
  * @param {GraphObject} selectedGraph
+ * @param {SelectableObject} selectedObject
+ * @param {string} selectedObjectType
  * @param {NodeObject} connectionStartNode live connection not yet attached
  * @param {bool} connectionStartType type of live connection
+ * @param {(ConnectionObject => ())} onConnectionSelected
  */
 class CanvasConnectionsContainer extends Component {
   constructor(props) {
@@ -84,9 +88,16 @@ class CanvasConnectionsContainer extends Component {
 
       // Define path
       pathsList.push(
-        <path
-          d={`M${startPosition.x},${startPosition.y + offset} 
+        <CanvasPathConnection
+          pathDescription={`M${startPosition.x},${startPosition.y + offset} 
           L${endPosition.x},${endPosition.y - offset} Z`}
+          connectionObject={connections[i]}
+          onConnectionSelected={this.props.onConnectionSelected}
+          isSelected={
+            this.props.selectedObjectType == "Connection" &&
+            connections[i].startId == this.props.selectedObject?.startId &&
+            connections[i].endId == this.props.selectedObject?.endId
+          }
           key={`ConnectionPath_${connections[i].startId}_to_${connections[i].endId}_${connections[i].startIsInput}`}
         />
       );

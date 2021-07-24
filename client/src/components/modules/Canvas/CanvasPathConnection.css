@@ -1,0 +1,19 @@
+.CanvasPathConnection-hoverArea {
+  stroke: transparent;
+  stroke-width: 16px;
+  pointer-events: auto;
+}
+
+.CanvasPathConnection-selected {
+  stroke: var(--background-main-light);
+  stroke-width: 8px;
+}
+
+.CanvasPathConnection-unselected {
+  transition: stroke-width 0s;
+}
+
+.CanvasPathConnection-hovered {
+  stroke-width: 8px;
+  transition: stroke-width 0.2s;
+}

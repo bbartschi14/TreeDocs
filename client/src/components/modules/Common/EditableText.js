@@ -11,6 +11,8 @@ import "./EditableText.css";
  * @param {string} propertyName name of the editable text
  * @param {string} customClass custom CSS styling class to be used
  * @param {string} iconSize "large" "medium" "small"
+ * @param {bool} hideIcon
+ * @param {bool} hideUnderline
  * @param {(event) => ()} onTextChanged callback function for text changing
  */
 class EditableText extends Component {
@@ -39,7 +41,10 @@ class EditableText extends Component {
 
     return (
       <>
-        <div className="EditableText-container">
+        <div
+          className="EditableText-container"
+          style={this.props.hideUnderline ? { borderBottom: "none" } : null}
+        >
           <input
             className={this.props.customClass}
             type="text"
@@ -48,12 +53,16 @@ class EditableText extends Component {
             onFocus={this.handleFocus}
             spellCheck={false}
           />
-          <EditIcon
-            className={"EditableText-editIcon " + iconClass}
-            style={{ fontSize: iconFontSize + "px" }}
-          />
+          {this.props.hideIcon ? null : (
+            <EditIcon
+              className={"EditableText-editIcon " + iconClass}
+              style={{ fontSize: iconFontSize + "px" }}
+            />
+          )}
         </div>
-        <div className="EditableText-property">{this.props.propertyName}</div>
+        {this.props.hideUnderline ? null : (
+          <div className="EditableText-property">{this.props.propertyName}</div>
+        )}
       </>
     );
   }

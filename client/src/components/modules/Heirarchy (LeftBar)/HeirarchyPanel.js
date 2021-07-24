@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import HeirarchyClassItem from "./HeirarchyClassItem.js";
 import HeirarchyItem from "./HeirarchyItem.js";
+import HorizontalResizer from "../Common/HorizontalResizer.js";
 import "./HeirarchyPanel.css";
 
 /**
@@ -11,7 +12,8 @@ import "./HeirarchyPanel.css";
  * Proptypes
  * @param TODO {ProjectObject} current working project
  * @param {GraphObject} selectedGraph working graph in working project
- * @param {NodeObject} selectedNode
+ * @param {SelectableObject} selectedObject
+ * @param {string} selectedObjectType
  * @param {(ClassObject) => ()} selectClass callback to select class
  */
 class HeirarchyPanel extends Component {
@@ -29,12 +31,26 @@ class HeirarchyPanel extends Component {
       <HeirarchyClassItem
         key={`Item_${nodeObj.classObject._id}`}
         classObject={nodeObj.classObject}
-        isSelected={nodeObj.classObject._id == this.props.selectedNode?.classObject._id}
+        isSelected={
+          this.props.selectedObjectType == "Node" &&
+          nodeObj.classObject._id == this.props.selectedObject?.classObject._id
+        }
         indentLevel={0}
         onClassClicked={this.handleClassSelected}
       />
     ));
-    return <div className="HeirarchyPanel-container u-default-shadow">{classList}</div>;
+    return (
+      <div
+        className="HeirarchyPanel-outerContainer"
+        style={{ width: this.props.panelWidth + "px" }}
+      >
+        <div className="HeirarchyPanel-container u-default-shadow">{classList}</div>
+        <HorizontalResizer
+          customClass="HeirarchyPanel-resizeHandle"
+          onResize={this.props.handleResize}
+        />
+      </div>
+    );
   }
 }
 

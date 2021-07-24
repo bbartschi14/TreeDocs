@@ -55,6 +55,7 @@ class CanvasNode extends Component {
 
   handleOnMouseDown = (event) => {
     if (event.button !== 0) return;
+    this.props.setDeleteActive(true);
 
     this.props.selectNodeWithGrid(this.props.nodeObject);
     /** Handle placement after auto dragging from add button */
@@ -74,6 +75,7 @@ class CanvasNode extends Component {
 
   handleOnMouseUp = (event) => {
     this.setState({ isDragging: false });
+
     event.stopPropagation();
     event.preventDefault();
   };
