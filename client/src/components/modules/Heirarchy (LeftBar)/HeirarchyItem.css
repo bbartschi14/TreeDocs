@@ -33,16 +33,40 @@
   flex-shrink: 0;
 }
 
-.HeirarchyItem-arrow {
+.HeirarchyItem-arrowRotaterOff {
   position: absolute;
   left: -2px;
   top: -3px;
-  opacity: 0.7;
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s;
+  transform-origin: center;
+  /* transform-origin: 12px 12px; */
 }
 
-.HeirarchyItem-arrow:hover {
+.HeirarchyItem-arrowRotaterOff:hover {
   cursor: pointer;
   background-color: rgba(148, 148, 148, 0.384);
+}
+
+.HeirarchyItem-arrowRotaterOn {
+  position: absolute;
+  left: -2px;
+  top: -3px;
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s;
+  transform: rotate(90deg);
+  /* transform-origin: 12px 12px; */
+}
+
+.HeirarchyItem-arrowRotaterOn:hover {
+  cursor: pointer;
+  background-color: rgba(148, 148, 148, 0.384);
+}
+
+.HeirarchyItem-arrow {
+  opacity: 0.7;
 }
 
 .HeirarchyItem-text {
@@ -73,5 +97,5 @@
 }
 
 .HeirarchyItem-nonSelectable {
-  opacity: 0.5;
+  opacity: 1;
 }

@@ -14,6 +14,8 @@ import IconFromName from "../Common/IconFromName";
  * @param {bool} isSelected used for styling
  * @param {int} indentLevel
  * @param {string} iconName
+ * @param {string} iconColor
+ * @param {string} iconTooltip
  */
 class HeirarchyItem extends Component {
   constructor(props) {
@@ -51,14 +53,27 @@ class HeirarchyItem extends Component {
           <div className="HeirarchyItem-arrowContainer">
             {this.props.children != null &&
             (this.props.children[0] != null || this.props.children[1] != null) ? (
-              <ArrowRightIcon
-                className="HeirarchyItem-arrow"
-                onClick={this.toggleOpen}
-                style={this.state.isOpen ? { transform: "rotate(90deg)" } : {}}
-              />
+              <div
+                className={
+                  this.state.isOpen
+                    ? "HeirarchyItem-arrowRotaterOn"
+                    : "HeirarchyItem-arrowRotaterOff"
+                }
+              >
+                <ArrowRightIcon
+                  className="HeirarchyItem-arrow"
+                  onClick={this.toggleOpen}
+                  // style={this.state.isOpen ? { transform: "rotate(90deg)" } : {}}
+                />
+              </div>
             ) : null}
           </div>
-          <IconFromName iconName={this.props.iconName} iconSize="small" />
+          <IconFromName
+            iconName={this.props.iconName}
+            iconSize="small"
+            iconColor={this.props.iconColor}
+            tooltipText={this.props.iconTooltip}
+          />
           <span className="HeirarchyItem-text u-noselect">{this.props.name}</span>
         </div>
         <div className="HeirarchyItem-children">

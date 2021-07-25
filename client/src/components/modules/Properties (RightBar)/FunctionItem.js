@@ -18,8 +18,14 @@ import IconFromName from "../Common/IconFromName";
 class FunctionItem extends Component {
   constructor(props) {
     super(props);
-    this.state = { isEditing: false, editedFunctionObject: null };
+    this.state = { isEditing: false, editedFunctionObject: null, isFirstTime: true };
   }
+
+  handleKeyPress = (event) => {
+    if (event.key == "Enter" && this.state.isEditing) {
+      this.handleSaveAndClose(event);
+    }
+  };
 
   handleFunctionNameChanged = (event) => {
     let updatedObject = Object.assign({}, this.state.editedFunctionObject);
@@ -47,21 +53,29 @@ class FunctionItem extends Component {
   };
 
   handleStartEditingClick = (event) => {
+    document.addEventListener("keydown", this.handleKeyPress);
     this.setState({ isEditing: true, editedFunctionObject: this.props.functionObject });
   };
 
   handleSaveAndClose = (event) => {
     this.props.updateFunctionInNodeObject(this.state.editedFunctionObject);
-    this.setState({ isEditing: false });
+    this.handleCancel(event);
   };
 
   handleCancel = (event) => {
-    this.setState({ isEditing: false });
+    document.removeEventListener("keydown", this.handleKeyPress);
+    this.setState({ isEditing: false, isFirstTime: false });
   };
 
+  componentDidMount() {
+    // if (this.state.isFirstTime) {
+    //   this.handleStartEditingClick(null);
+    // }
+  }
   render() {
-    return this.state.isEditing ? (
-      <div className="FunctionItem-editingContainer">
+    return this.state.isEditing && //|| this.state.isFirstTime) &&
+      this.state.editedFunctionObject != null ? (
+      <form className="FunctionItem-editingContainer">
         <div className="FunctionItem-editingContainerHeader">Name</div>
         <div className="FunctionItem-subContainer">
           <EditableText
@@ -70,6 +84,7 @@ class FunctionItem extends Component {
             onTextChanged={this.handleFunctionNameChanged}
             iconSize="medium"
             propertyName="Function Name"
+            pullFocus={true}
           />
           {/* <div style={{ height: "8px" }}></div> */}
         </div>
@@ -82,7 +97,14 @@ class FunctionItem extends Component {
           />
         </div>
 
-        <div className="FunctionItem-editingContainerHeader">Parameters</div>
+        <div className="FunctionItem-editingContainerHeader">
+          <div>Parameters</div>
+          <AddPropertyButton
+            buttonText={"Add Parameter"}
+            onAddClicked={this.handleAddParameterButtonClicked}
+            useSecondaryColors={true}
+          />
+        </div>
         <div className="FunctionItem-subContainer">
           {this.state.editedFunctionObject.parameters.map((param, i) => (
             <FunctionItemParameter
@@ -92,28 +114,28 @@ class FunctionItem extends Component {
               updateSelectedParam={this.updateSelectedParam}
             />
           ))}
-          <AddPropertyButton
-            buttonText={"Add Parameter"}
-            onAddClicked={this.handleAddParameterButtonClicked}
-          />
         </div>
 
         <div className="FunctionItem-subContainer">
           <div className="u-flex">
-            <button className="FunctionItem-editingSaveButton" onClick={this.handleSaveAndClose}>
+            <button
+              className="FunctionItem-editingSaveButton u-noselect"
+              onClick={this.handleSaveAndClose}
+            >
               Save
             </button>
-            <div className="FunctionItem-editingCancelButton" onClick={this.handleCancel}>
+            <button className="FunctionItem-editingCancelButton" onClick={this.handleCancel}>
               <CloseIcon />
-            </div>
+            </button>
           </div>
         </div>
-      </div>
+      </form>
     ) : (
       <div className="FunctionItem-container u-noselect" onClick={this.handleStartEditingClick}>
         <IconFromName
           iconName="Function"
           iconColor={VARIABLE_TYPES[this.props.functionObject.returnValue.type].color}
+          tooltipText={this.props.functionObject.returnValue.typeName}
         />
         <div className="FunctionItem-text">{this.props.functionObject.name}</div>
         <div className="FunctionItem-parentheses" style={{ marginLeft: "8px" }}>
@@ -125,6 +147,7 @@ class FunctionItem extends Component {
               key={i}
               iconName="Variable"
               iconColor={VARIABLE_TYPES[param.type].color}
+              tooltipText={param.typeName + ": " + param.name}
             />
             {i == this.props.functionObject.parameters.length - 1 ? null : <div>,</div>}
           </>

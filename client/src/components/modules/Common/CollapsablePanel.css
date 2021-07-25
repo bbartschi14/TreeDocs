@@ -4,6 +4,13 @@
   font-weight: var(--weight-m);
   position: relative;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.CollapsablePanel-headingBarLeft {
+  position: relative;
+  display: flex;
   justify-content: flex-start;
   align-items: center;
 }
@@ -16,6 +23,15 @@
   position: absolute;
   left: -14px;
   top: 6px;
+  transition: transform 0.2s;
+}
+
+.CollapsablePanel-iconAbsoluteRotated {
+  position: absolute;
+  left: -14px;
+  top: 6px;
+  transform: rotate(90deg);
+  transition: transform 0.1s;
 }
 
 .CollapsablePanel-titleText {

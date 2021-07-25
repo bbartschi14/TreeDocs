@@ -1,0 +1,21 @@
+.IconFromName-container {
+  position: relative;
+  overflow: visible;
+}
+
+.IconFromName-tooltipContainer {
+  background-color: white;
+  position: fixed;
+  /* bottom: 105%;
+  right: 0px; */
+  padding: 4px var(--s);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  color: black;
+  font-size: 14px;
+  white-space: nowrap;
+  font-family: "Source Code Pro", monospace;
+  text-align: right;
+}

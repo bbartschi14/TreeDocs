@@ -35,6 +35,7 @@ class VariableTypeSelector extends Component {
           <IconFromName
             iconName="Variable"
             iconColor={VARIABLE_TYPES[this.props.selectedParam.type].color}
+            tooltipText={this.props.selectedParam.typeName}
           />
           <select
             className="VariableTypeSelector-dropDown "

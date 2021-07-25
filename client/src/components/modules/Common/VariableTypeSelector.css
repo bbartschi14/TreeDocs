@@ -17,5 +17,5 @@ select {
 
 select:focus {
   border: 1px solid var(--background-main);
-  outline: none;
+  outline: 2px solid var(--background-main);
 }

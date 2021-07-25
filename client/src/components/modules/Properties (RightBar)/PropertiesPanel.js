@@ -81,8 +81,8 @@ class PropertiesPanel extends Component {
     let id = nextId();
     let newVariable = {
       parent: this.props.selectedObject.classObject,
-      name: "NewVariable_" + id,
       _id: id,
+      parameterObject: { name: "NewVariable_" + id, type: 1, typeName: "Int" },
     };
     this.handleAddVariableToClass(newVariable);
   };
@@ -91,6 +91,14 @@ class PropertiesPanel extends Component {
     let updatedNodeObject = Object.assign({}, this.props.selectedObject);
     updatedNodeObject.classObject.functions = this.props.selectedObject.classObject.functions.map(
       (func) => (func._id == updatedFuncObject._id ? updatedFuncObject : func)
+    );
+    this.props.updateSelectedNode(updatedNodeObject);
+  };
+
+  updateVariableInNodeObject = (updatedVariableObject) => {
+    let updatedNodeObject = Object.assign({}, this.props.selectedObject);
+    updatedNodeObject.classObject.variables = this.props.selectedObject.classObject.variables.map(
+      (variable) => (variable._id == updatedVariableObject._id ? updatedVariableObject : variable)
     );
     this.props.updateSelectedNode(updatedNodeObject);
   };
@@ -143,7 +151,14 @@ class PropertiesPanel extends Component {
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
 
-            <CollapsablePanel title="Functions" iconName="List" iconSize="small">
+            <CollapsablePanel
+              title="Functions"
+              iconName="List"
+              iconSize="small"
+              includeButton={true}
+              buttonText="Add Function"
+              buttonCallback={this.handleAddFunctionButtonClicked}
+            >
               <div style={{ height: "8px" }}></div>
               {this.props.selectedObject.classObject.functions.map((func) => (
                 <FunctionItem
@@ -152,22 +167,27 @@ class PropertiesPanel extends Component {
                   updateFunctionInNodeObject={this.updateFunctionInNodeObject}
                 />
               ))}
-              <AddPropertyButton
-                buttonText={"Add Function"}
-                onAddClicked={this.handleAddFunctionButtonClicked}
-              />
+
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
 
-            <CollapsablePanel title="Variables" iconName="List" iconSize="small">
+            <CollapsablePanel
+              title="Variables"
+              iconName="List"
+              iconSize="small"
+              includeButton={true}
+              buttonText="Add Variable"
+              buttonCallback={this.handleAddVariableButtonClicked}
+            >
               <div style={{ height: "8px" }}></div>
               {this.props.selectedObject.classObject.variables.map((variable) => (
-                <VariableItem variableObject={variable} key={variable._id} />
+                <VariableItem
+                  variableObject={variable}
+                  key={variable._id}
+                  updateVariableInNodeObject={this.updateVariableInNodeObject}
+                />
               ))}
-              <AddPropertyButton
-                buttonText={"Add Variable"}
-                onAddClicked={this.handleAddVariableButtonClicked}
-              />
+
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
           </div>

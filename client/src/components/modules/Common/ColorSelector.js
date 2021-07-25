@@ -19,8 +19,9 @@ class ColorSelector extends Component {
     return (
       <>
         <div className="ColorSelector-container ">
-          {this.props.colors.map((color) => (
+          {this.props.colors.map((color, i) => (
             <SingleColorBox
+              key={i}
               color={color}
               isSelected={this.props.selectedColor == color}
               updateColor={this.props.updateColor}

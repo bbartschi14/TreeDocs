@@ -38,6 +38,10 @@
   background-color: var(--background-main);
   color: white;
   font-weight: var(--weight-m);
+  height: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .FunctionItem-editingSaveButton {
@@ -54,15 +58,27 @@
   background-color: var(--background-tertiary-dark);
 }
 
+.FunctionItem-editingSaveButton:focus {
+  outline: 2px solid var(--background-main);
+}
+
 .FunctionItem-editingCancelButton {
   padding: 0px 4px;
   display: flex;
   justify-content: center;
   align-items: center;
   opacity: 0.5;
+  background-color: transparent;
+  border: none;
+  outline: none;
 }
 
 .FunctionItem-editingCancelButton:hover {
   opacity: 0.85;
   cursor: pointer;
+  background-color: transparent;
+}
+
+.FunctionItem-editingCancelButton:focus {
+  outline: 2px solid var(--background-main-dark);
 }

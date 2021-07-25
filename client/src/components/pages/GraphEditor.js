@@ -15,11 +15,10 @@ import { connect } from "mongoose";
  */
 class GraphEditor extends Component {
   /**
-   * @typedef VariableObject
+   * @typedef VariableObject // Variable object wraps the simpler parameter object with parent data and a unique id
    * @property {ClassObject} parent
    * @property {string} _id
-   * @property {string} name
-   * @property {int} type (see VARIABLE_TYPES)
+   * @property {ParameterObject} parameterObject
    */
 
   /**

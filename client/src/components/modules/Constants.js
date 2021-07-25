@@ -3,6 +3,7 @@ const VARIABLE_TYPES = [
   { type: "Int", typeName: "Int", color: "#6a994e" },
   { type: "Float", typeName: "Float", color: "#a7c957" },
   { type: "String", typeName: "String", color: "#ffafcc" },
+  { type: "Bool", typeName: "Bool", color: "#c9184a" },
   { type: "Void", typeName: "Void", color: "#cccccc" },
 ];
 

@@ -4,6 +4,7 @@ import FunctionsIcon from "@material-ui/icons/Functions";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import PersonIcon from "@material-ui/icons/Person";
 import ListIcon from "@material-ui/icons/List";
+import "./IconFromName.css";
 /**
  *  Component to load Material UI icon from name
  *
@@ -11,12 +12,29 @@ import ListIcon from "@material-ui/icons/List";
  * @param {string} iconName
  * @param {string} iconSize
  * @param {string} iconColor
+ * @param {string} tooltipText
  */
 class IconFromName extends Component {
   constructor(props) {
     super(props);
-    this.state = { defaultColor: "#999999" };
+    this.state = { defaultColor: "#999999", displayTooltip: false, tooltipPos: { x: 0, y: 0 } };
   }
+
+  showTooltip = (event) => {
+    if (typeof this.props.tooltipText != "undefined") {
+      this.setState({ displayTooltip: true, tooltipPos: { x: event.pageX, y: event.pageY } });
+    }
+  };
+
+  hideTooltip = (event) => {
+    this.setState({ displayTooltip: false });
+  };
+
+  moveTooltip = (event) => {
+    if (this.state.displayTooltip) {
+      this.setState({ tooltipPos: { x: event.pageX, y: event.pageY } });
+    }
+  };
 
   render() {
     let icon = null;
@@ -36,7 +54,24 @@ class IconFromName extends Component {
     } else if (name == "List") {
       icon = <ListIcon fontSize={this.props.iconSize} style={{ color: useColor }} />;
     }
-    return <>{icon}</>;
+    return (
+      <div
+        className="IconFromName-container"
+        onMouseEnter={this.showTooltip}
+        onMouseLeave={this.hideTooltip}
+        onMouseMove={this.moveTooltip}
+      >
+        <div>{icon}</div>
+        {this.state.displayTooltip ? (
+          <div
+            className="IconFromName-tooltipContainer u-default-shadow"
+            style={{ left: this.state.tooltipPos.x, top: this.state.tooltipPos.y - 30 }}
+          >
+            {this.props.tooltipText}
+          </div>
+        ) : null}
+      </div>
+    );
   }
 }
 

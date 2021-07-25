@@ -10,6 +10,8 @@ import VariableTypeSelector from "../Common/VariableTypeSelector";
  * @property {int} parameterIndex
  * @property {ParameterObject} selectedParam
  * @property {(ParameterObject, int) => ()} updateSelectedParam
+ * @property {bool} disableStyle
+ * @property {bool} pullFocus
  */
 class FunctionItemParameter extends Component {
   constructor(props) {
@@ -29,12 +31,16 @@ class FunctionItemParameter extends Component {
   render() {
     return (
       <>
-        <div className="FunctionItemParameter-container ">
+        <div
+          className="FunctionItemParameter-container "
+          style={this.props.disableStyle ? { border: "none", backgroundColor: "transparent" } : {}}
+        >
           <EditableText
             iconSize="medium"
             propertyName="Parameter Name"
             text={this.props.selectedParam.name}
             onTextChanged={this.handleParamNameChanged}
+            pullFocus={this.props.pullFocus}
           />
           <div style={{ height: "8px" }}></div>
           <VariableTypeSelector

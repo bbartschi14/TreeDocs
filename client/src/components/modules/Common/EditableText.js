@@ -13,11 +13,13 @@ import "./EditableText.css";
  * @param {string} iconSize "large" "medium" "small"
  * @param {bool} hideIcon
  * @param {bool} hideUnderline
+ * @param {bool} pullFocus
  * @param {(event) => ()} onTextChanged callback function for text changing
  */
 class EditableText extends Component {
   constructor(props) {
     super(props);
+    this.inputRef = React.createRef();
   }
 
   handleChange = (event) => {
@@ -27,6 +29,12 @@ class EditableText extends Component {
   handleFocus = (event) => {
     event.target.select();
   };
+
+  componentDidMount() {
+    if (this.props.pullFocus) {
+      this.inputRef.current.select();
+    }
+  }
 
   render() {
     let iconClass = "EditableText-iconLarge";
@@ -46,6 +54,7 @@ class EditableText extends Component {
           style={this.props.hideUnderline ? { borderBottom: "none" } : null}
         >
           <input
+            ref={this.inputRef}
             className={this.props.customClass}
             type="text"
             value={this.props.text}
