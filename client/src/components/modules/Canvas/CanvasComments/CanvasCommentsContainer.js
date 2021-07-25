@@ -9,8 +9,7 @@ import "./CanvasCommentsContainer.css";
  * @param {GraphObject} selectedGraph
  * @param {SelectableObject} selectedObject
  * @param {string} selectedObjectType
- * @param {(IntPoint) => ()} createCommentObject
- * @param {(IntPoint) => {}} handleCommentPositionChanged callback to update position
+ * @param {(CommentObject) => {}} updateSelectedComment
  * @param {(CommentObject) => {}} selectComment
  */
 class CanvasCommentsContainer extends Component {
@@ -20,21 +19,9 @@ class CanvasCommentsContainer extends Component {
     this.containerRef = React.createRef();
   }
 
-  handleControlClick = (event) => {
-    if (event.ctrlKey) {
-      let bounds = this.containerRef.current.getBoundingClientRect();
-      let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
-      this.props.createCommentObject(currentPosition);
-    }
-  };
-
   render() {
     return (
-      <div
-        onClick={this.handleControlClick}
-        className="CanvasCommentsContainer-container"
-        ref={this.containerRef}
-      >
+      <div className="CanvasCommentsContainer-container" ref={this.containerRef}>
         {this.props.selectedGraph.comments.map((comment) => (
           <CanvasComment
             key={comment._id}
@@ -43,8 +30,7 @@ class CanvasCommentsContainer extends Component {
               comment._id == this.props.selectedObject?._id
             }
             commentObject={comment}
-            handleCommentPositionChanged={this.props.handleCommentPositionChanged}
-            handleCommentSizeChanged={this.props.handleCommentSizeChanged}
+            updateSelectedComment={this.props.updateSelectedComment}
             selectComment={this.props.selectComment}
           />
         ))}

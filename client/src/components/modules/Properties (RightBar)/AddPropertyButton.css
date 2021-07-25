@@ -1,15 +1,24 @@
 .AddPropertyButton-container {
-  height: 24px;
-  background-color: var(--background-main);
+  height: 30px;
   font-size: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
   font-weight: var(--weight-m);
+  margin-top: 8px;
 }
 
-.AddPropertyButton-container:hover {
+.AddPropertyButton-innerContainer {
+  background-color: var(--background-main);
+  height: 100%;
+  padding: 0px var(--m);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.AddPropertyButton-innerContainer:hover {
   cursor: pointer;
-  opacity: 0.75;
+  background-color: var(--background-main-dark);
 }

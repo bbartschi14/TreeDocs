@@ -1,0 +1,6 @@
+.FunctionItemParameter-container {
+  padding: 8px;
+  background-color: rgb(243, 243, 243);
+  border: 2px solid var(--background-main);
+  margin-bottom: 4px;
+}

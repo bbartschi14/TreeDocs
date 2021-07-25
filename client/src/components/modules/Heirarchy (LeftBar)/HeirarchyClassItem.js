@@ -30,10 +30,19 @@ class HeirarchyClassItem extends Component {
         isSelected={this.props.isSelected}
         indentLevel={this.props.indentLevel}
         onItemClicked={this.handleClassSelected}
+        isClickable={true}
+        iconName="Class"
       >
         {this.props.classObject.functions.length > 0
           ? [
-              <HeirarchyItem name="Functions" indentLevel={1} onItemClicked={this.handleEmptyReply}>
+              <HeirarchyItem
+                key="Functions"
+                name="Functions"
+                indentLevel={1}
+                onItemClicked={this.handleEmptyReply}
+                isClickable={false}
+                iconName="List"
+              >
                 {this.props.classObject.functions.map((funcObj) => (
                   <HeirarchyFunctionItem
                     key={`FunctionItem_${funcObj._id}`}
@@ -47,7 +56,14 @@ class HeirarchyClassItem extends Component {
           : null}
         {this.props.classObject.variables.length > 0
           ? [
-              <HeirarchyItem name="Variables" indentLevel={1} onItemClicked={this.handleEmptyReply}>
+              <HeirarchyItem
+                key="Functions"
+                name="Variables"
+                indentLevel={1}
+                onItemClicked={this.handleEmptyReply}
+                iconName="List"
+                isClickable={false}
+              >
                 {this.props.classObject.variables.map((varObj) => (
                   <HeirarchyVariableItem
                     key={`VariableItem_${varObj._id}`}

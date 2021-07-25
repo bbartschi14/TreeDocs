@@ -8,6 +8,8 @@ import "./PropertiesPanel.css";
 import AddPropertyButton from "./AddPropertyButton.js";
 import nextId from "react-id-generator";
 import HorizontalResizer from "../Common/HorizontalResizer.js";
+import PropertiesConnectionPanel from "./PropertiesConnectionPanel.js";
+import PropertiesCommentPanel from "./PropertiesCommentPanel.js";
 
 /**
  * Panel component for the right-side properties. Will display
@@ -40,8 +42,10 @@ class PropertiesPanel extends Component {
   };
 
   handleDescriptionPropertyChanged = (event) => {
+    console.log(event.target.value);
     let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.classObject.description = event.currentTarget.textContent; // update the parent property, assign a new value
+    updatedObject.classObject.description = event.target.value; // update the parent property, assign a new value
+
     this.props.updateSelectedNode(updatedObject);
   };
 
@@ -67,6 +71,8 @@ class PropertiesPanel extends Component {
       parent: this.props.selectedObject.classObject,
       name: "NewFunction_" + id,
       _id: id,
+      returnValue: { name: "DefaultParam", type: 1, typeName: "Int" },
+      parameters: [],
     };
     this.handleAddFunctionToClass(newFunction);
   };
@@ -93,11 +99,17 @@ class PropertiesPanel extends Component {
     let content = null;
     if (this.props.selectedObject == null) {
       // Empty content
-      content = <div className="PropertiesPanel-container u-default-shadow">No Selection</div>;
+      content = (
+        <div className="PropertiesPanel-container ">
+          <div className="PropertiesPanel-upperContainer">
+            <div className="PropertiesPanel-noSelection">No Selection</div>
+          </div>
+        </div>
+      );
     } else if (this.props.selectedObjectType == "Node") {
       // Display Properties
       content = (
-        <div className="PropertiesPanel-container u-default-shadow">
+        <div className="PropertiesPanel-container">
           <div className="PropertiesPanel-upperContainer">
             <EditableText
               customClass="PropertiesPanel-selectionName"
@@ -118,16 +130,20 @@ class PropertiesPanel extends Component {
             <div style={{ height: "8px" }}></div>
           </div>
           <div className="PropertiesPanel-innerVerticalBox u-flexColumn">
-            <CollapsablePanel title="Description">
+            <CollapsablePanel title="Description" iconName="Description" iconSize="small">
               <div style={{ height: "8px" }}></div>
               <EditableTextBlock
                 text={this.props.selectedObject.classObject.description}
                 onTextChanged={this.handleDescriptionPropertyChanged}
-              />
+              >
+                <ul>
+                  <li>{this.props.selectedObject.classObject.description}</li>
+                </ul>
+              </EditableTextBlock>
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
 
-            <CollapsablePanel title="Functions">
+            <CollapsablePanel title="Functions" iconName="List" iconSize="small">
               <div style={{ height: "8px" }}></div>
               {this.props.selectedObject.classObject.functions.map((func) => (
                 <FunctionItem
@@ -143,7 +159,7 @@ class PropertiesPanel extends Component {
               <div style={{ height: "8px" }}></div>
             </CollapsablePanel>
 
-            <CollapsablePanel title="Variables">
+            <CollapsablePanel title="Variables" iconName="List" iconSize="small">
               <div style={{ height: "8px" }}></div>
               {this.props.selectedObject.classObject.variables.map((variable) => (
                 <VariableItem variableObject={variable} key={variable._id} />
@@ -157,10 +173,28 @@ class PropertiesPanel extends Component {
           </div>
         </div>
       );
+    } else if (this.props.selectedObjectType == "Connection") {
+      content = (
+        <div className="PropertiesPanel-container">
+          <div className="PropertiesPanel-upperContainer">
+            <PropertiesConnectionPanel connectionObject={this.props.selectedObject} />
+          </div>
+        </div>
+      );
+    } else if (this.props.selectedObjectType == "Comment") {
+      content = (
+        <div className="PropertiesPanel-container">
+          <PropertiesCommentPanel
+            commentObject={this.props.selectedObject}
+            updateSelectedComment={this.props.updateSelectedComment}
+          />
+        </div>
+      );
     }
+
     return (
       <div
-        className="PropertiesPanel-outerContainer"
+        className="PropertiesPanel-outerContainer u-default-shadow"
         style={{ width: this.props.panelWidth + "px" }}
       >
         {content}

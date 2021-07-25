@@ -1,10 +1,10 @@
 .CanvasComment-container {
   position: absolute;
   pointer-events: auto;
-  background-color: rgba(255, 253, 134, 0.692);
-  padding: 24px;
+  padding: 16px;
   outline-offset: 0px;
   transition: outline-offset 0.1s;
+  /* overflow: hidden; */
 }
 
 .CanvasComment-container:hover {
@@ -15,8 +15,7 @@
 .CanvasComment-containerSelected {
   position: absolute;
   pointer-events: auto;
-  background-color: rgba(255, 253, 134, 0.692);
-  padding: 24px;
+  padding: 16px;
   outline: 4px dashed var(--background-main);
   outline-offset: 4px;
 }
@@ -25,11 +24,23 @@
   position: absolute;
   right: 0px;
   bottom: 0px;
-  width: 10px;
-  height: 10px;
-  background-color: rgba(0, 0, 0, 0.466);
+  width: 0;
+  height: 0;
+  border-bottom: 16px solid var(--background-main);
+  border-left: 16px solid transparent;
+  /* background-color: rgba(0, 0, 0, 0.466); */
   cursor: nwse-resize;
 }
 
 .CanvasComment-text {
+}
+
+.CanvasComment-title {
+  font-weight: var(--weight-m);
+  font-size: 12px;
+  position: absolute;
+  top: -22px;
+  left: 8px;
+  background-color: rgba(255, 255, 255, 0.678);
+  padding: var(--xs) var(--s);
 }

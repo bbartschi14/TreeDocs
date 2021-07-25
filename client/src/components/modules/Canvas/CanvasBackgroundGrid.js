@@ -9,6 +9,7 @@ import "./CanvasBackgroundGrid.css";
  *
  * Proptypes
  * @param {float} gridSize of each grid cell
+ * @param {() => ()} deselectObjects callback to deselect all
  */
 class CanvasBackgroundGrid extends Component {
   constructor(props) {
@@ -22,8 +23,11 @@ class CanvasBackgroundGrid extends Component {
 
   drawGrid = (gridSize) => {
     //console.log("Drawing grid " + gridSize);
+
     let width = this.state.canvasWidth;
     let height = this.state.canvasHeight;
+
+    this.canvasContext.clearRect(0, 0, width, height);
 
     this.canvasContext.strokeStyle = "rgb(150,150,150)";
     this.canvasContext.lineWidth = 0.3;
@@ -56,10 +60,20 @@ class CanvasBackgroundGrid extends Component {
   };
 
   componentDidMount() {
-    window.addEventListener("resize", this.updateCanvasDimensions);
+    //window.addEventListener("resize", this.updateCanvasDimensions);
     this.canvasContext = this.backgroundCanvas.getContext("2d");
     this.updateCanvasDimensions();
   }
+
+  handleClick = (event) => {
+    if (event.ctrlKey) {
+      let bounds = this.backgroundCanvas.getBoundingClientRect();
+      let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
+      this.props.createCommentObject(currentPosition);
+    } else {
+      this.props.deselectObjects();
+    }
+  };
 
   render() {
     return (
@@ -68,6 +82,7 @@ class CanvasBackgroundGrid extends Component {
         className="CanvasBackgroundGrid-canvas"
         width={this.state.canvasWidth}
         height={this.state.canvasHeight}
+        onClick={this.handleClick}
       />
     );
   }

@@ -23,6 +23,8 @@ class HeirarchyVariableItem extends Component {
         isSelected={this.props.isSelected}
         indentLevel={this.props.indentLevel}
         onItemClicked={this.handleFunctionSelected}
+        iconName="Variable"
+        isClickable={false}
       />
     );
   }

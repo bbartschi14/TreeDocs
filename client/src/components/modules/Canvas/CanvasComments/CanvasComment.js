@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import EditableTextBlock from "../../Common/EditableTextBlock";
 import "./CanvasComment.css";
 import CommentResizer from "./CommentResizer";
 
@@ -10,6 +11,7 @@ import CommentResizer from "./CommentResizer";
  * @param {bool} isSelected
  * @param {(IntPoint) => {}} handleCommentPositionChanged callback to update position
  * @param {(IntPoint) => {}} handleCommentSizeChanged
+ * @param {(CommentObject) => {}} updateSelectedComment
  * @param {(CommentObject) => {}} selectComment
  */
 class CanvasComment extends Component {
@@ -42,8 +44,8 @@ class CanvasComment extends Component {
 
     this.props.selectComment(this.props.commentObject);
 
-    event.stopPropagation();
-    event.preventDefault();
+    //event.stopPropagation();
+    //event.preventDefault();
   };
 
   handleOnMouseMove = (event) => {
@@ -52,7 +54,7 @@ class CanvasComment extends Component {
       x: newPos.x - this.state.mousePosition.x,
       y: newPos.y - this.state.mousePosition.y,
     };
-    this.props.handleCommentPositionChanged({
+    this.handleCommentPositionChanged({
       x: this.props.commentObject.savedPosition.x + delta.x,
       y: this.props.commentObject.savedPosition.y + delta.y,
     });
@@ -66,10 +68,34 @@ class CanvasComment extends Component {
   };
 
   resizeComment = (deltas) => {
-    this.props.handleCommentSizeChanged({
+    this.handleCommentSizeChanged({
       x: this.props.commentObject.savedSize.x + deltas.x,
       y: this.props.commentObject.savedSize.y + deltas.y,
     });
+  };
+
+  handleTextPropertyChanged = (event) => {
+    //if (!this.state.isSelected) return;
+
+    let updatedObject = Object.assign({}, this.props.commentObject); // creating copy of selected node prop
+    updatedObject.text = event.target.value; // update the parent property, assign a new value
+    this.props.updateSelectedComment(updatedObject);
+  };
+
+  handleCommentPositionChanged = (newPosition) => {
+    //if (!this.state.isSelected) return;
+
+    let updatedObject = Object.assign({}, this.props.commentObject); // creating copy of selected node prop
+    updatedObject.savedPosition = newPosition; // update the parent property, assign a new value
+    this.props.updateSelectedComment(updatedObject);
+  };
+
+  handleCommentSizeChanged = (newSize) => {
+    //if (!this.state.isSelected) return;
+
+    let updatedObject = Object.assign({}, this.props.commentObject); // creating copy of selected node prop
+    updatedObject.savedSize = newSize; // update the parent property, assign a new value
+    this.props.updateSelectedComment(updatedObject);
   };
 
   render() {
@@ -86,14 +112,21 @@ class CanvasComment extends Component {
           top: this.props.commentObject.savedPosition.y,
           width: this.props.commentObject.savedSize.x,
           height: this.props.commentObject.savedSize.y,
+          backgroundColor: this.props.commentObject.color,
         }}
       >
-        <div className="CanvasComment-text u-noselect">{this.props.commentObject.text}</div>
+        <EditableTextBlock
+          text={this.props.commentObject.text}
+          onTextChanged={this.handleTextPropertyChanged}
+        >
+          {this.props.commentObject.text}
+        </EditableTextBlock>
         <CommentResizer
           customClass="CanvasComment-resizer"
           onResize={this.resizeComment}
           onMouseDownBeforeResize={this.onMouseDownBeforeResize}
         />
+        <div className="CanvasComment-title u-noselect">{this.props.commentObject.title}</div>
       </div>
     );
   }

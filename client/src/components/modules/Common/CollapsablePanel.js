@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import IconFromName from "../Common/IconFromName.js";
+
 import "./CollapsablePanel.css";
 
 /**
@@ -8,6 +10,7 @@ import "./CollapsablePanel.css";
  *
  * Proptypes
  * @param {string} title Panel title
+ * @param {string} iconName
  */
 class CollapsablePanel extends Component {
   constructor(props) {
@@ -25,6 +28,8 @@ class CollapsablePanel extends Component {
     return (
       <div className="CollapsablePanel-container">
         <div className="CollapsablePanel-headingBar" onClick={this.handleOnClick}>
+          <div style={{ width: "10px" }}></div>
+          <IconFromName iconName={this.props.iconName} />
           <div className="CollapsablePanel-titleText u-noselect">{this.props.title}</div>
 
           <div className="CollapsablePanel-leftSide"></div>
@@ -32,9 +37,9 @@ class CollapsablePanel extends Component {
         </div>
         <div className="CollapsablePanel-iconAbsolute" onClick={this.handleOnClick}>
           {this.state.isOpen ? (
-            <ArrowDropDownIcon className="CollapsablePanel-dropDown" />
+            <ArrowDropDownIcon className="CollapsablePanel-dropDown" color="action" />
           ) : (
-            <ArrowRightIcon className="CollapsablePanel-dropDown" />
+            <ArrowRightIcon className="CollapsablePanel-dropDown" color="action" />
           )}
         </div>
         {this.state.isOpen ? this.props.children : null}

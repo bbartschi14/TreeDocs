@@ -19,6 +19,14 @@ class GraphEditor extends Component {
    * @property {ClassObject} parent
    * @property {string} _id
    * @property {string} name
+   * @property {int} type (see VARIABLE_TYPES)
+   */
+
+  /**
+   * @typedef ParameterObject
+   * @property {string} name
+   * @property {string} typeName
+   * @property {int} type (see VARIABLE_TYPES)
    */
 
   /**
@@ -26,6 +34,8 @@ class GraphEditor extends Component {
    * @property {ClassObject} parent
    * @property {string} _id
    * @property {string} name
+   * @property {ParameterObject} returnValue
+   * @property {[ParameterObject]} parameters
    */
 
   /**
@@ -58,6 +68,8 @@ class GraphEditor extends Component {
    * @property {IntPoint} savedPosition
    * @property {IntPoint} savedSize
    * @property {string} text
+   * @property {string} color
+   * @property {string} title
    *
    */
 
@@ -211,8 +223,10 @@ class GraphEditor extends Component {
     let newComment = {
       _id: id,
       savedPosition: startPosition,
-      savedSize: { x: 100, y: 100 },
-      text: "Put Comment Text Here",
+      savedSize: { x: 200, y: 100 },
+      text: "Click here to edit text",
+      color: "#fffd8699",
+      title: "Title",
     };
     this.addCommentToSelectedGraph(newComment);
   };
@@ -226,6 +240,7 @@ class GraphEditor extends Component {
   };
 
   updateSelectedComment = (updatedComment) => {
+    //console.log(JSON.stringify(updatedComment));
     // Requires that we set both the selected state and the array
     // of the selected graph
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
@@ -274,6 +289,9 @@ class GraphEditor extends Component {
       } else if (this.state.selectedObjectType == "Connection") {
         // Delete connection
         this.deleteSelectedConnection();
+      } else if (this.state.selectedObjectType == "Comment") {
+        // Delete connection
+        this.deleteSelectedComment();
       }
     }
   };
@@ -313,6 +331,17 @@ class GraphEditor extends Component {
     this.clearSelection();
   };
 
+  deleteSelectedComment = () => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.comments = this.state.selectedGraph.comments.filter(
+      (comment) => comment._id != this.state.selectedObject._id
+    );
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+    this.clearSelection();
+  };
+
   clearSelection = () => {
     this.setState({ selectedObject: null, selectedObjectType: "None" });
   };
@@ -320,11 +349,13 @@ class GraphEditor extends Component {
   /********************* */
 
   addToastNotification = (text) => {
-    this.setState({
-      toastNotifications: this.state.toastNotifications.concat([
-        { message: text, timeCreated: Date.now() },
-      ]),
-    });
+    if (this.state.toastNotifications.length < 6) {
+      this.setState({
+        toastNotifications: this.state.toastNotifications.concat([
+          { message: text, timeCreated: Date.now() },
+        ]),
+      });
+    }
   };
 
   removeToastNotification = (toastObject) => {
@@ -364,6 +395,7 @@ class GraphEditor extends Component {
           setDeleteActive={this.setDeleteActive}
           selectComment={this.selectComment}
           updateSelectedComment={this.updateSelectedComment}
+          deselectObjects={this.clearSelection}
         />
         <PropertiesPanel
           selectedObject={this.state.selectedObject}
@@ -371,6 +403,7 @@ class GraphEditor extends Component {
           updateSelectedNode={this.updateSelectedNode}
           panelWidth={this.state.propertiesPanelWidth}
           handleResize={this.handleResizePropertiesPanel}
+          updateSelectedComment={this.updateSelectedComment}
         />
         <GraphTitle
           updateSelectedGraph={this.updateSelectedGraph}

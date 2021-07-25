@@ -1,0 +1,21 @@
+.VariableTypeSelector-container {
+  border-bottom: 1px solid rgb(202, 202, 202);
+  display: flex;
+  height: var(--l);
+  padding-bottom: 4px;
+}
+
+.VariableTypeSelector-dropDown {
+  flex-grow: 1;
+  margin-left: 4px;
+}
+
+select {
+  border: 1px solid var(--background-main);
+  font-family: var(--main-font-family);
+}
+
+select:focus {
+  border: 1px solid var(--background-main);
+  outline: none;
+}

@@ -16,7 +16,7 @@ class AddPropertyButton extends Component {
   render() {
     return (
       <div className="AddPropertyButton-container u-noselect" onClick={this.props.onAddClicked}>
-        {this.props.buttonText}
+        <div className="AddPropertyButton-innerContainer">{this.props.buttonText}</div>
       </div>
     );
   }

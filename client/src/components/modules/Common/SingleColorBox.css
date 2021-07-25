@@ -1,0 +1,16 @@
+.SingleColorBox-container {
+  width: 28px;
+  height: 28px;
+  margin: 6px;
+  border: 2px solid rgba(0, 0, 0, 0.253);
+  outline: 2px dashed transparent;
+  outline-offset: 1px;
+}
+
+.SingleColorBox-unselected:hover {
+  outline: 2px dashed var(--background-main-light-transparent);
+}
+
+.SingleColorBox-selected {
+  outline: 2px dashed var(--background-main);
+}

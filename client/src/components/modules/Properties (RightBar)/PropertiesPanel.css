@@ -56,3 +56,15 @@
 .PropertiesPanel-resizeHandle:hover {
   opacity: 0.5;
 }
+
+ul {
+  margin: 0px;
+  padding-left: 18px;
+}
+
+.PropertiesPanel-noSelection {
+  text-align: center;
+  font-weight: var(--weight-m);
+  margin-top: 12px;
+  opacity: 0.5;
+}

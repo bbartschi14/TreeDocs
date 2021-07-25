@@ -1,0 +1,13 @@
+.PropertiesConnectionPanel-heading {
+  font-size: var(--l);
+  font-weight: var(--weight-m);
+}
+
+.PropertiesConnectionPanel-container {
+  margin-top: 4px;
+}
+
+.PropertiesConnectionPanel-li {
+  margin-left: 8px;
+  padding: 4px;
+}

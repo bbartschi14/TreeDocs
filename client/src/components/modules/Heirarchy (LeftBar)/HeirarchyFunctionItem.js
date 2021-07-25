@@ -23,6 +23,8 @@ class HeirarchyFunctionItem extends Component {
         isSelected={this.props.isSelected}
         indentLevel={this.props.indentLevel}
         onItemClicked={this.handleFunctionSelected}
+        iconName="Function"
+        isClickable={false}
       />
     );
   }

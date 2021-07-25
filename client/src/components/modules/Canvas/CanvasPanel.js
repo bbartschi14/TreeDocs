@@ -25,6 +25,7 @@ import CanvasCommentsContainer from "./CanvasComments/CanvasCommentsContainer";
  * @param {string} addToastNotification
  * @param {ToastObject} removeToastNotification
  * @param {(bool)=>()} setDeleteActive
+ * @param {() => ()} deselectObjects
  *
  * Connection Proptypes
  * @param {(ConnectionObject) => ()} tryCreateConnection callback function for letting the Editor know that we've indicated a connection between an output and input
@@ -190,19 +191,6 @@ class CanvasPanel extends Component {
 
   /***************** */
 
-  handleCommentPositionChanged = (newPosition) => {
-    //console.log(newPosition);
-    let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.savedPosition = newPosition; // update the parent property, assign a new value
-    this.props.updateSelectedComment(updatedObject);
-  };
-
-  handleCommentSizeChanged = (newSize) => {
-    let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.savedSize = newSize; // update the parent property, assign a new value
-    this.props.updateSelectedComment(updatedObject);
-  };
-
   render() {
     let nodesList = null;
     nodesList = this.props.selectedGraph.nodes.map((nodeObj) => (
@@ -238,16 +226,18 @@ class CanvasPanel extends Component {
             className="CanvasPanel-scaler"
             style={{ transform: "scale(" + this.state.zoom + ")" }}
           >
-            <CanvasBackgroundGrid gridSize={60} />
+            <CanvasBackgroundGrid
+              gridSize={60}
+              deselectObjects={this.props.deselectObjects}
+              createCommentObject={this.props.createCommentObject}
+            />
 
             <CanvasCommentsContainer
-              createCommentObject={this.props.createCommentObject}
               selectedGraph={this.props.selectedGraph}
               selectedObject={this.props.selectedObject}
               selectedObjectType={this.props.selectedObjectType}
-              handleCommentPositionChanged={this.handleCommentPositionChanged}
-              handleCommentSizeChanged={this.handleCommentSizeChanged}
               selectComment={this.props.selectComment}
+              updateSelectedComment={this.props.updateSelectedComment}
             />
 
             <CanvasConnectionsContainer

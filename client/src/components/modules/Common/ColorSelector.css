@@ -1,0 +1,5 @@
+.ColorSelector-container {
+  border-bottom: 1px solid rgb(202, 202, 202);
+  display: flex;
+  flex-wrap: wrap;
+}

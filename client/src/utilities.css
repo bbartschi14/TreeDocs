@@ -22,11 +22,18 @@
   --darkgrey: #4e4e4e;
   --medgrey: #e0e0e0;
   --grey: #f7f7f7;
+  --grey-transparent: #a5a5a560;
   --white: #fff;
   --background-main: #99a880;
+  --background-main-dark: #768360;
+
   --background-main-light: #c1d7ae;
   --background-secondary: #92140c;
+  --background-tertiary: #006d77;
+  --background-tertiary-dark: #00464d;
+
   --background-main-transparent: #a3b18aaf;
+  --background-main-light-transparent: rgba(163, 177, 138, 0.267);
 
   --background-light: rgb(255, 255, 255);
   --background-gray: #e1e1e1;
@@ -46,6 +53,8 @@
   --weight-l: 700;
 
   --main-font-family: "Roboto", sans-serif;
+
+  --base-icon-color: #aaaaaa;
 }
 html {
   height: 100%;

@@ -1,14 +1,68 @@
 .FunctionItem-container {
   padding: var(--s);
   box-sizing: border-box;
-  border: solid 2px transparent;
+  display: flex;
+  align-items: center;
 }
 
 .FunctionItem-container:hover {
-  border: solid 2px var(--background-main);
+  cursor: pointer;
+  background-color: var(--background-main-light-transparent);
 }
 
 .FunctionItem-text {
   font-size: var(--m);
   font-weight: var(--weight-s);
+  margin-left: 8px;
+}
+
+.FunctionItem-parentheses {
+  padding: 0px 4px;
+}
+
+.FunctionItem-editingContainer {
+  /* padding: var(--m); */
+  box-sizing: border-box;
+  border: 2px solid var(--background-main);
+  margin-bottom: 4px;
+  background-color: var(--background-main-light-transparent);
+}
+
+.FunctionItem-subContainer {
+  padding: var(--m);
+  box-sizing: border-box;
+}
+
+.FunctionItem-editingContainerHeader {
+  padding: var(--s);
+  background-color: var(--background-main);
+  color: white;
+  font-weight: var(--weight-m);
+}
+
+.FunctionItem-editingSaveButton {
+  background-color: var(--background-tertiary);
+  outline: none;
+  border: none;
+  color: white;
+  padding: var(--s) 16px;
+  margin-right: 6px;
+}
+
+.FunctionItem-editingSaveButton:hover {
+  cursor: pointer;
+  background-color: var(--background-tertiary-dark);
+}
+
+.FunctionItem-editingCancelButton {
+  padding: 0px 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.5;
+}
+
+.FunctionItem-editingCancelButton:hover {
+  opacity: 0.85;
+  cursor: pointer;
 }
