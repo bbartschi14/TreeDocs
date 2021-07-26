@@ -56,16 +56,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // set up a session, which will persist login data across requests
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
 
 // this checks if the user is logged in, and populates "req.user"
-app.use(auth.populateCurrentUser);
+//app.use(auth.populateCurrentUser);
 
 // connect user-defined routes
 app.use("/api", api);

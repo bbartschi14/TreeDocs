@@ -43,7 +43,7 @@ module.exports = {
   checkRoutes: (req, res, next) => {
     if (!routeChecked && req.url === "/") {
       // if the server receives a request on /, we must be on port 3000 not 5000
-      if (!fs.existsSync("./client/dist/bundle.js")) {
+      if (!fs.existsSync("/client/dist/bundle.js")) {
         throw new NodeSetupError(
           "Couldn't find bundle.js! If you want to run the hot reloader, make sure 'npm run hotloader'\n" +
             "is running and then go to http://localhost:5000 instead of port 3000.\n" +
