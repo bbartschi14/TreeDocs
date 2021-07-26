@@ -43,20 +43,20 @@ module.exports = {
   checkRoutes: (req, res, next) => {
     if (!routeChecked && req.url === "/") {
       // if the server receives a request on /, we must be on port 3000 not 5000
-      if (!fs.existsSync("/client/dist/bundle.js")) {
-        throw new NodeSetupError(
-          fs.readdirSync("./") +
-            " Client:" +
-            fs.readdirSync("./client") +
-            " Dist:" +
-            fs.readdirSync("./client/dist")
-        );
-        // throw new NodeSetupError(
-        //   "Couldn't find bundle.js! If you want to run the hot reloader, make sure 'npm run hotloader'\n" +
-        //     "is running and then go to http://localhost:5000 instead of port 3000.\n" +
-        //     "If you're not using the hot reloader, make sure to run 'npx webpack' before visiting this page"
-        // );
-      }
+      // if (!fs.existsSync("/client/dist/bundle.js")) {
+      //   throw new NodeSetupError(
+      //     fs.readdirSync("./") +
+      //       " Client:" +
+      //       fs.readdirSync("./client") +
+      //       " Dist:" +
+      //       fs.readdirSync("./client/dist")
+      //   );
+      //   // throw new NodeSetupError(
+      //   //   "Couldn't find bundle.js! If you want to run the hot reloader, make sure 'npm run hotloader'\n" +
+      //   //     "is running and then go to http://localhost:5000 instead of port 3000.\n" +
+      //   //     "If you're not using the hot reloader, make sure to run 'npx webpack' before visiting this page"
+      //   // );
+      // }
 
       checkHotLoader().then((active) => {
         if (active) {
