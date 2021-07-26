@@ -10,6 +10,7 @@ import HeirarchyVariableItem from "./HeirarchyVariableItem";
  * @param {ClassObject} classObject class represented by this item
  * @param {(ClassObject) => ()} onClassClicked callback for being clicked
  * @param {bool} isSelected used for styling
+ * @param {bool} isPlaced
  * @param {int} indentLevel
  */
 class HeirarchyClassItem extends Component {
@@ -23,6 +24,13 @@ class HeirarchyClassItem extends Component {
 
   handleEmptyReply = (event) => {};
 
+  handleCreateNode = (event) => {
+    if (!this.props.isPlaced) {
+      this.handleClassSelected();
+      this.props.handleCreateNode(event, this.props.classObject);
+    }
+  };
+
   render() {
     return (
       <HeirarchyItem
@@ -32,6 +40,9 @@ class HeirarchyClassItem extends Component {
         onItemClicked={this.handleClassSelected}
         isClickable={true}
         iconName="Class"
+        isPlaced={this.props.isPlaced}
+        isPlaceable={true}
+        handleCreateNode={this.handleCreateNode}
       >
         {this.props.classObject.functions.length > 0
           ? [

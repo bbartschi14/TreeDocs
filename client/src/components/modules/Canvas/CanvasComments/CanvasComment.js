@@ -20,7 +20,7 @@ import CommentResizer from "./CommentResizer";
 class CanvasComment extends Component {
   constructor(props) {
     super(props);
-    this.state = { isDragging: false, mousePosition: { x: 0, y: 0 } };
+    this.state = { isDragging: false, mousePosition: { x: 0, y: 0 }, hasMoved: false };
   }
 
   onMouseDownBeforeResize = () => {
@@ -55,7 +55,7 @@ class CanvasComment extends Component {
       x: this.props.commentNodeObject.savedPosition.x + delta.x,
       y: this.props.commentNodeObject.savedPosition.y + delta.y,
     });
-    this.setState({ mousePosition: newPos });
+    this.setState({ mousePosition: newPos, hasMoved: true });
   };
 
   handleOnMouseUp = (event) => {
@@ -64,6 +64,7 @@ class CanvasComment extends Component {
 
     this.setState({
       isDragging: false,
+      hasMoved: false,
     });
   };
 
@@ -108,7 +109,7 @@ class CanvasComment extends Component {
   }
 
   render() {
-    let shadow = this.state.isDragging ? "u-hovering " : "u-default-shadow ";
+    let shadow = this.state.isDragging && this.state.hasMoved ? "u-hovering " : "u-default-shadow ";
     return (
       <div
         onMouseDown={this.handleOnMouseDown}

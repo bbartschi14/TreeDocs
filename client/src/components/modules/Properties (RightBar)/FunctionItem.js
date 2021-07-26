@@ -144,12 +144,14 @@ class FunctionItem extends Component {
         {this.props.functionObject.parameters.map((param, i) => (
           <>
             <IconFromName
-              key={i}
+              key={"Item_" + i}
               iconName="Variable"
               iconColor={VARIABLE_TYPES[param.type].color}
               tooltipText={param.typeName + ": " + param.name}
             />
-            {i == this.props.functionObject.parameters.length - 1 ? null : <div>,</div>}
+            {i == this.props.functionObject.parameters.length - 1 ? null : (
+              <div key={"Item2_" + i}>,</div>
+            )}
           </>
         ))}
         <div className="FunctionItem-parentheses">)</div>

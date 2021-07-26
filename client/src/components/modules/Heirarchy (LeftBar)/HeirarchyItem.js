@@ -12,6 +12,8 @@ import IconFromName from "../Common/IconFromName";
  * @param {string} name name text for this item
  * @param {() => ()} onItemClicked callback for being clicked
  * @param {bool} isSelected used for styling
+ * @param {bool} isPlaced
+ * @param {bool} isPlaceable
  * @param {int} indentLevel
  * @param {string} iconName
  * @param {string} iconColor
@@ -33,6 +35,10 @@ class HeirarchyItem extends Component {
     this.setState({ isOpen: !this.state.isOpen });
   };
 
+  handlePlaceExisting = (event) => {
+    this.props.handleCreateNode(event);
+  };
+
   render() {
     let indentSpacer = [...Array(this.props.indentLevel)].map((e, i) => (
       <div className="HeirarchyItem-spacer" key={i}></div>
@@ -49,6 +55,13 @@ class HeirarchyItem extends Component {
           }
           onClick={this.handleOnClick}
         >
+          {this.props.isPlaceable ? (
+            <div
+              onMouseDown={this.handlePlaceExisting}
+              className="HeirarchyItem-placedIcon"
+              style={this.props.isPlaced ? { opacity: ".15" } : { opacity: ".75" }}
+            ></div>
+          ) : null}
           {indentSpacer}
           <div className="HeirarchyItem-arrowContainer">
             {this.props.children != null &&

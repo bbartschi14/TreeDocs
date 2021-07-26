@@ -75,13 +75,6 @@ class GraphEditor extends Component {
     this.state = {
       selectedObject: null,
       selectedObjectType: "None", // "None", "Class", "Connection", "Comment"
-      selectedGraph: {
-        _id: "001",
-        name: "SampleGraph",
-        nodes: [],
-        comments: [],
-        classes: [],
-      },
       propertiesPanelWidth: 300,
       heirarchyPanelWidth: 260,
       toastNotifications: [],
@@ -103,19 +96,11 @@ class GraphEditor extends Component {
       functions: [],
       variables: [],
     };
-    this.addClassToSelectedGraph(newClassObject);
+    this.props.addClassToProject(newClassObject);
     this.selectClass(newClassObject);
   };
 
   setDeleteActive = (value) => {};
-
-  addClassToSelectedGraph = (newClassObject) => {
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.classes = this.state.selectedGraph.classes.concat([newClassObject]);
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
-  };
 
   selectClass = (classObj) => {
     //console.log("Selecting: " + JSON.stringify(classObj));
@@ -132,32 +117,11 @@ class GraphEditor extends Component {
     });
   };
 
-  selectClassObject = (classObject) => {
-    let allNodesWithMatchingId = this.state.selectedGraph.nodes.filter(
-      (node) => node.classObject._id == classObject._id
-    );
-    if (allNodesWithMatchingId.length == 1) {
-      this.updateSelectedClass(allNodesWithMatchingId[0]);
-    }
-  };
-
   updateSelectedClass = (updatedClass) => {
     // Requires that we set both the selected node state and the nodes array
     // of the selected graph
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.classes = this.state.selectedGraph.classes.map((c) =>
-      c._id == updatedClass._id ? updatedClass : c
-    );
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
     this.selectClass(updatedClass);
-  };
-
-  updateSelectedGraph = (updatedGraph) => {
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
+    this.props.updateSelectedClass(updatedClass);
   };
 
   /******** Comments ***************/
@@ -173,11 +137,9 @@ class GraphEditor extends Component {
   };
 
   addCommentToSelectedGraph = (newComment) => {
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.comments = this.state.selectedGraph.comments.concat([newComment]);
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
+    let updatedGraph = Object.assign({}, this.props.selectedGraph);
+    updatedGraph.comments = this.props.selectedGraph.comments.concat([newComment]);
+    this.props.updateSelectedGraph(updatedGraph);
     this.selectComment(newComment);
   };
 
@@ -185,13 +147,11 @@ class GraphEditor extends Component {
     //console.log(JSON.stringify(updatedComment));
     // Requires that we set both the selected state and the array
     // of the selected graph
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.comments = this.state.selectedGraph.comments.map((comment) =>
+    let updatedGraph = Object.assign({}, this.props.selectedGraph);
+    updatedGraph.comments = this.props.selectedGraph.comments.map((comment) =>
       comment._id == updatedComment._id ? updatedComment : comment
     );
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
+    this.props.updateSelectedGraph(updatedGraph);
     this.selectComment(updatedComment);
   };
 
@@ -227,7 +187,7 @@ class GraphEditor extends Component {
     if (this.state.selectedObject != null) {
       if (this.state.selectedObjectType == "Class") {
         //Delete class
-        this.deleteSelectedClass();
+        // this.deleteSelectedClassNode();
       } else if (this.state.selectedObjectType == "Comment") {
         // Delete comment
         this.deleteSelectedComment();
@@ -235,15 +195,13 @@ class GraphEditor extends Component {
     }
   };
 
-  deleteSelectedClass = () => {
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.classes = this.state.selectedGraph.classes.filter(
+  deleteClass = (id) => {
+    let updatedProject = Object.assign({}, this.props.selectedProject);
+    updatedProject.classes = this.props.selectedProject.classes.filter(
       (c) => c._id != this.state.selectedObject._id
     );
 
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
+    this.props.updateSelectedProject(updatedProject);
     //this.addToastNotification("Node deleted");
     this.clearSelection();
   };
@@ -251,13 +209,11 @@ class GraphEditor extends Component {
   //
 
   deleteSelectedComment = () => {
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.comments = this.state.selectedGraph.comments.filter(
+    let updatedGraph = Object.assign({}, this.props.selectedGraph);
+    updatedGraph.comments = this.props.selectedGraph.comments.filter(
       (comment) => comment._id != this.state.selectedObject._id
     );
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
+    this.props.updateSelectedGraph(updatedGraph);
     this.clearSelection();
   };
 
@@ -290,19 +246,12 @@ class GraphEditor extends Component {
   render() {
     return (
       <>
-        <HeirarchyPanel
-          selectedGraph={this.state.selectedGraph}
-          selectedObject={this.state.selectedObject}
-          selectedObjectType={this.state.selectedObjectType}
-          selectClass={this.selectClass}
-          panelWidth={this.state.heirarchyPanelWidth}
-          handleResize={this.handleResizeHeirarchyPanel}
-        />
         <CanvasPanel
+          selectedProject={this.props.selectedProject}
           createClassObject={this.createClassObject}
           createCommentObject={this.createCommentObject}
           selectClass={this.selectClass}
-          selectedGraph={this.state.selectedGraph}
+          selectedGraph={this.props.selectedGraph}
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
           onConnectionSelected={this.selectConnection}
@@ -313,7 +262,19 @@ class GraphEditor extends Component {
           selectComment={this.selectComment}
           updateSelectedComment={this.updateSelectedComment}
           deselectObjects={this.clearSelection}
-        />
+          updateSelectedGraph={this.props.updateSelectedGraph}
+          addClassNodeToGraph={this.props.addClassNodeToGraph}
+        >
+          <HeirarchyPanel
+            selectedProject={this.props.selectedProject}
+            selectedGraph={this.props.selectedGraph}
+            selectedObject={this.state.selectedObject}
+            selectedObjectType={this.state.selectedObjectType}
+            selectClass={this.selectClass}
+            panelWidth={this.state.heirarchyPanelWidth}
+            handleResize={this.handleResizeHeirarchyPanel}
+          />
+        </CanvasPanel>
         <PropertiesPanel
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
@@ -321,10 +282,6 @@ class GraphEditor extends Component {
           panelWidth={this.state.propertiesPanelWidth}
           handleResize={this.handleResizePropertiesPanel}
           updateSelectedComment={this.updateSelectedComment}
-        />
-        <GraphTitle
-          updateSelectedGraph={this.updateSelectedGraph}
-          currentGraph={this.state.selectedGraph}
         />
       </>
     );

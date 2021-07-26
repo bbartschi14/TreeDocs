@@ -24,6 +24,7 @@ class CanvasNode extends Component {
       initialPosition: { x: 0, y: 0 },
       initialMousePosition: { x: 0, y: 0 },
       isDragging: false,
+      hasMoved: false,
     };
   }
 
@@ -43,7 +44,7 @@ class CanvasNode extends Component {
   };
 
   handleOnMouseUp = (event) => {
-    this.setState({ isDragging: false });
+    this.setState({ isDragging: false, hasMoved: false });
     document.removeEventListener("mousemove", this.handleOnMouseMove);
     document.removeEventListener("mouseup", this.handleOnMouseUp);
     event.stopPropagation();
@@ -52,6 +53,7 @@ class CanvasNode extends Component {
 
   handleOnMouseMove = (event) => {
     if (!this.state.isDragging) return;
+    this.setState({ hasMoved: true });
     let deltaX = event.pageX - this.state.initialMousePosition.x;
     let deltaY = event.pageY - this.state.initialMousePosition.y;
 
@@ -93,7 +95,8 @@ class CanvasNode extends Component {
   }
 
   render() {
-    let shadow = this.state.isDragging ? " u-hovering " : " u-default-shadow ";
+    let shadow =
+      this.state.isDragging && this.state.hasMoved ? " u-hovering " : " u-default-shadow ";
     let mainClass = "CanvasNode-innerContainer";
     if (this.props.isSelected) {
       mainClass += " CanvasNode-selected";

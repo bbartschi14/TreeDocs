@@ -22,6 +22,22 @@ class App extends Component {
       userId: undefined,
       userName: undefined,
       userStatus: undefined,
+      selectedProject: {
+        graphs: [
+          {
+            _id: "001",
+            name: "SampleGraph",
+            comments: [],
+          },
+        ],
+        classes: [],
+      },
+      selectedGraph: {
+        _id: "001",
+        name: "SampleGraph",
+        comments: [],
+        classNodeIds: [],
+      },
     };
   }
 
@@ -49,6 +65,45 @@ class App extends Component {
     post("/api/logout");
   };
 
+  addClassToProject = (newClassObject) => {
+    let updatedProject = Object.assign({}, this.state.selectedProject);
+    updatedProject.classes = this.state.selectedProject.classes.concat([newClassObject]);
+    this.setState({
+      selectedProject: updatedProject,
+    });
+    this.addClassNodeToGraph(newClassObject._id);
+  };
+
+  addClassNodeToGraph = (id) => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.classNodeIds = this.state.selectedGraph.classNodeIds.concat([id]);
+    this.updateSelectedGraph(updatedGraph);
+  };
+
+  updateSelectedProject = (updatedProject) => {
+    this.setState({
+      selectedProject: updatedProject,
+    });
+  };
+
+  updateSelectedClass = (updatedClass) => {
+    // Requires that we set both the selected node state and the nodes array
+    // of the selected graph
+    let updatedProject = Object.assign({}, this.state.selectedProject);
+    updatedProject.classes = this.state.selectedProject.classes.map((c) =>
+      c._id == updatedClass._id ? updatedClass : c
+    );
+    this.setState({
+      selectedProject: updatedProject,
+    });
+  };
+
+  updateSelectedGraph = (updatedGraph) => {
+    this.setState({
+      selectedGraph: updatedGraph,
+    });
+  };
+
   // required method: whatever is returned defines what
   // shows up on screen
   render() {
@@ -63,8 +118,23 @@ class App extends Component {
           userName={this.state.userName}
           userStatus={this.state.userStatus}
         />
+        {/* <GraphTitle
+          updateSelectedGraph={this.updateSelectedGraph}
+          currentGraph={this.state.selectedGraph}
+        /> */}
         <Router className="App-lower-container">
-          <GraphEditor path="/" userId={this.state.userId} userStatus={this.state.userStatus} />
+          <GraphEditor
+            path="/"
+            userId={this.state.userId}
+            userStatus={this.state.userStatus}
+            selectedProject={this.state.selectedProject}
+            selectedGraph={this.state.selectedGraph}
+            addClassToProject={this.addClassToProject}
+            updateSelectedClass={this.updateSelectedClass}
+            updateSelectedGraph={this.updateSelectedGraph}
+            updateSelectedProject={this.updateSelectedProject}
+            addClassNodeToGraph={this.addClassNodeToGraph}
+          />
           <NotFound default />
         </Router>
       </div>

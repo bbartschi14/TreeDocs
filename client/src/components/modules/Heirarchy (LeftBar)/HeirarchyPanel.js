@@ -27,17 +27,23 @@ class HeirarchyPanel extends Component {
 
   render() {
     let classList = null;
-    classList = this.props.selectedGraph.classes.map((classObj) => (
-      <HeirarchyClassItem
-        key={`Item_${classObj._id}`}
-        classObject={classObj}
-        isSelected={
-          this.props.selectedObjectType == "Class" && classObj._id == this.props.selectedObject?._id
-        }
-        indentLevel={0}
-        onClassClicked={this.handleClassSelected}
-      />
-    ));
+    classList = this.props.selectedProject.classes.map((classObj) => {
+      let existingNodes = this.props.selectedGraph.classNodeIds.filter((id) => id == classObj._id);
+      return (
+        <HeirarchyClassItem
+          key={`Item_${classObj._id}`}
+          classObject={classObj}
+          isSelected={
+            this.props.selectedObjectType == "Class" &&
+            classObj._id == this.props.selectedObject?._id
+          }
+          indentLevel={0}
+          onClassClicked={this.handleClassSelected}
+          isPlaced={existingNodes.length > 0}
+          handleCreateNode={this.props.handleCreateNode}
+        />
+      );
+    });
     return (
       <div
         className="HeirarchyPanel-outerContainer"

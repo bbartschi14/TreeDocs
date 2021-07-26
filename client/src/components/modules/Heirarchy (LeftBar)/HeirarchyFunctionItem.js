@@ -28,6 +28,7 @@ class HeirarchyFunctionItem extends Component {
         iconColor={VARIABLE_TYPES[this.props.functionObject.returnValue.type].color}
         iconTooltip={this.props.functionObject.returnValue.typeName}
         isClickable={false}
+        isPlaceable={false}
       />
     );
   }
