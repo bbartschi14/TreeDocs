@@ -7,27 +7,20 @@ import CommentResizer from "./CommentResizer";
  *  Comment component for the graph
  *
  * Proptypes
+ * @param {CommentNodeObject} commentNodeObject
  * @param {CommentObject} commentObject represented by this node
  * @param {bool} isSelected
  * @param {(IntPoint) => {}} handleCommentPositionChanged callback to update position
  * @param {(IntPoint) => {}} handleCommentSizeChanged
  * @param {(CommentObject) => {}} updateSelectedComment
  * @param {(CommentObject) => {}} selectComment
+ * @param {(CommentNodeObject) => {}} updateSelectedCommentNode
+
  */
 class CanvasComment extends Component {
   constructor(props) {
     super(props);
     this.state = { isDragging: false, mousePosition: { x: 0, y: 0 } };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.isDragging && !prevState.isDragging) {
-      document.addEventListener("mousemove", this.handleOnMouseMove);
-      document.addEventListener("mouseup", this.handleOnMouseUp);
-    } else if (!this.state.isDragging && prevState.isDragging) {
-      document.removeEventListener("mousemove", this.handleOnMouseMove);
-      document.removeEventListener("mouseup", this.handleOnMouseUp);
-    }
   }
 
   onMouseDownBeforeResize = () => {
@@ -36,6 +29,9 @@ class CanvasComment extends Component {
 
   handleOnMouseDown = (event) => {
     if (event.button !== 0) return;
+
+    document.addEventListener("mousemove", this.handleOnMouseMove);
+    document.addEventListener("mouseup", this.handleOnMouseUp);
 
     this.setState({
       isDragging: true,
@@ -54,14 +50,18 @@ class CanvasComment extends Component {
       x: newPos.x - this.state.mousePosition.x,
       y: newPos.y - this.state.mousePosition.y,
     };
+
     this.handleCommentPositionChanged({
-      x: this.props.commentObject.savedPosition.x + delta.x,
-      y: this.props.commentObject.savedPosition.y + delta.y,
+      x: this.props.commentNodeObject.savedPosition.x + delta.x,
+      y: this.props.commentNodeObject.savedPosition.y + delta.y,
     });
     this.setState({ mousePosition: newPos });
   };
 
   handleOnMouseUp = (event) => {
+    document.removeEventListener("mousemove", this.handleOnMouseMove);
+    document.removeEventListener("mouseup", this.handleOnMouseUp);
+
     this.setState({
       isDragging: false,
     });
@@ -69,49 +69,59 @@ class CanvasComment extends Component {
 
   resizeComment = (deltas) => {
     this.handleCommentSizeChanged({
-      x: this.props.commentObject.savedSize.x + deltas.x,
-      y: this.props.commentObject.savedSize.y + deltas.y,
+      x: this.props.commentNodeObject.savedSize.x + deltas.x,
+      y: this.props.commentNodeObject.savedSize.y + deltas.y,
     });
   };
 
   handleTextPropertyChanged = (event) => {
-    //if (!this.state.isSelected) return;
-
-    let updatedObject = Object.assign({}, this.props.commentObject); // creating copy of selected node prop
-    updatedObject.text = event.target.value; // update the parent property, assign a new value
+    let updatedObject = Object.assign({}, this.props.commentObject);
+    updatedObject.text = event.target.value;
     this.props.updateSelectedComment(updatedObject);
   };
 
   handleCommentPositionChanged = (newPosition) => {
-    //if (!this.state.isSelected) return;
-
-    let updatedObject = Object.assign({}, this.props.commentObject); // creating copy of selected node prop
-    updatedObject.savedPosition = newPosition; // update the parent property, assign a new value
-    this.props.updateSelectedComment(updatedObject);
+    let updatedObject = Object.assign({}, this.props.commentNodeObject);
+    updatedObject.savedPosition = newPosition;
+    this.props.updateSelectedCommentNode(updatedObject);
   };
 
   handleCommentSizeChanged = (newSize) => {
-    //if (!this.state.isSelected) return;
-
-    let updatedObject = Object.assign({}, this.props.commentObject); // creating copy of selected node prop
-    updatedObject.savedSize = newSize; // update the parent property, assign a new value
-    this.props.updateSelectedComment(updatedObject);
+    let updatedObject = Object.assign({}, this.props.commentNodeObject);
+    updatedObject.savedSize = newSize;
+    this.props.updateSelectedCommentNode(updatedObject);
   };
 
+  componentDidMount() {
+    if (this.props.isBeingPlaced) {
+      this.setState(
+        {
+          isDragging: true,
+          mousePosition: this.props.placingMousePos,
+        },
+        () => {
+          document.addEventListener("mousemove", this.handleOnMouseMove);
+          document.addEventListener("mouseup", this.handleOnMouseUp);
+        }
+      );
+    }
+  }
+
   render() {
+    let shadow = this.state.isDragging ? "u-hovering " : "u-default-shadow ";
     return (
       <div
         onMouseDown={this.handleOnMouseDown}
         className={
-          this.props.isSelected
-            ? "CanvasComment-containerSelected u-default-shadow"
-            : "CanvasComment-container u-default-shadow"
+          "u-noselect " +
+          shadow +
+          (this.props.isSelected ? "CanvasComment-containerSelected" : "CanvasComment-container")
         }
         style={{
-          left: this.props.commentObject.savedPosition.x,
-          top: this.props.commentObject.savedPosition.y,
-          width: this.props.commentObject.savedSize.x,
-          height: this.props.commentObject.savedSize.y,
+          left: this.props.commentNodeObject.savedPosition.x,
+          top: this.props.commentNodeObject.savedPosition.y,
+          width: this.props.commentNodeObject.savedSize.x,
+          height: this.props.commentNodeObject.savedSize.y,
           backgroundColor: this.props.commentObject.color,
         }}
       >

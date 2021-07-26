@@ -48,24 +48,8 @@ class GraphEditor extends Component {
    */
 
   /**
-   * @typedef NodeObject
-   * @property {ClassObject} classObject
-   * @property {IntPoint} savedPosition
-   * @property {bool} isAttachedToCursor
-   */
-
-  /**
-   * @typedef ConnectionObject // The connecton object id is a concatenation of the startNode.classObject._id and endNode.classObject._id
-   * @property {string} startId
-   * @property {string} endId
-   * @property {bool} startIsInput determines the order of input->output or output->input
-   */
-
-  /**
    * @typedef CommentObject
    * @property {string} _id
-   * @property {IntPoint} savedPosition
-   * @property {IntPoint} savedSize
    * @property {string} text
    * @property {string} color
    * @property {string} title
@@ -76,8 +60,7 @@ class GraphEditor extends Component {
    * @typedef GraphObject
    * @property {string} _id
    * @property {string} name
-   * @property {NodeObject[]} nodes array of nodes contained within this graph
-   * @property {ConnectionObject[]} connections array of connections in this graph
+   * @property {ClassObject[]} classes
    * @property {CommentObject[]} comments array of comments
    */
 
@@ -91,12 +74,17 @@ class GraphEditor extends Component {
     super(props);
     this.state = {
       selectedObject: null,
-      selectedObjectType: "None", // "None", "Node", "Connection", "Comment"
-      selectedGraph: { _id: "001", name: "SampleGraph", nodes: [], connections: [], comments: [] },
+      selectedObjectType: "None", // "None", "Class", "Connection", "Comment"
+      selectedGraph: {
+        _id: "001",
+        name: "SampleGraph",
+        nodes: [],
+        comments: [],
+        classes: [],
+      },
       propertiesPanelWidth: 300,
       heirarchyPanelWidth: 260,
       toastNotifications: [],
-      isDeleteActive: true,
     };
   }
 
@@ -105,42 +93,35 @@ class GraphEditor extends Component {
     document.addEventListener("keydown", this.handleKeyPress);
   }
 
-  createCanvasNode = (startPosition) => {
-    // Creates a new node, then adds it to the selected graph
-    let id = nextId();
-    let newCanvasNode = {
-      classObject: {
-        _id: id,
-        name: "NewClass-" + id,
-        parent: "NewParent-" + id,
-        description: "Blank Description",
-        functions: [],
-        variables: [],
-      },
-      isAttachedToCursor: true,
-      savedPosition: startPosition,
+  createClassObject = (id) => {
+    // Creates a new class, then adds it to the selected graph
+    let newClassObject = {
+      _id: id,
+      name: "NewClass-" + id,
+      parent: "NewParent-" + id,
+      description: "Blank Description",
+      functions: [],
+      variables: [],
     };
-    this.addNodeToSelectedGraph(newCanvasNode);
+    this.addClassToSelectedGraph(newClassObject);
+    this.selectClass(newClassObject);
   };
 
-  setDeleteActive = (value) => {
-    this.setState({ isDeleteActive: value });
-  };
+  setDeleteActive = (value) => {};
 
-  addNodeToSelectedGraph = (newNode) => {
+  addClassToSelectedGraph = (newClassObject) => {
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.nodes = this.state.selectedGraph.nodes.concat([newNode]);
+    updatedGraph.classes = this.state.selectedGraph.classes.concat([newClassObject]);
     this.setState({
       selectedGraph: updatedGraph,
     });
-    this.selectNode(newNode);
   };
 
-  selectNode = (nodeObj) => {
-    //console.log("Selecting: " + JSON.stringify(nodeObj));
+  selectClass = (classObj) => {
+    //console.log("Selecting: " + JSON.stringify(classObj));
     this.setState({
-      selectedObject: nodeObj,
-      selectedObjectType: "Node",
+      selectedObject: classObj,
+      selectedObjectType: "Class",
     });
   };
 
@@ -156,21 +137,21 @@ class GraphEditor extends Component {
       (node) => node.classObject._id == classObject._id
     );
     if (allNodesWithMatchingId.length == 1) {
-      this.updateSelectedNode(allNodesWithMatchingId[0]);
+      this.updateSelectedClass(allNodesWithMatchingId[0]);
     }
   };
 
-  updateSelectedNode = (updatedNode) => {
+  updateSelectedClass = (updatedClass) => {
     // Requires that we set both the selected node state and the nodes array
     // of the selected graph
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.nodes = this.state.selectedGraph.nodes.map((node) =>
-      node.classObject._id == updatedNode.classObject._id ? updatedNode : node
+    updatedGraph.classes = this.state.selectedGraph.classes.map((c) =>
+      c._id == updatedClass._id ? updatedClass : c
     );
     this.setState({
       selectedGraph: updatedGraph,
     });
-    this.selectNode(updatedNode);
+    this.selectClass(updatedClass);
   };
 
   updateSelectedGraph = (updatedGraph) => {
@@ -179,50 +160,11 @@ class GraphEditor extends Component {
     });
   };
 
-  /********** Connections ***********/
-  tryCreateConnection = (connectionObj) => {
-    // Filter any connections that are the same two nodes
-    let existingConnections = this.state.selectedGraph.connections.filter(function (conn) {
-      if (conn.startIsInput == connectionObj.startIsInput) {
-        if (conn.startId == connectionObj.startId && conn.endId == connectionObj.endId) {
-          return true;
-        }
-      } else {
-        if (conn.startId == connectionObj.endId && conn.endId == connectionObj.startId) {
-          return true;
-        }
-      }
-      return false;
-    });
-
-    // If the connection already exists, don't create the new one
-    if (existingConnections.length > 0) {
-      console.log("Connection already exists");
-    } else {
-      // Create the new one
-      console.log("Connection added");
-      this.addConnectionToSelectedGraph(connectionObj);
-    }
-  };
-
-  addConnectionToSelectedGraph = (newConnection) => {
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.connections = this.state.selectedGraph.connections.concat([newConnection]);
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
-  };
-  /*************** */
-
   /******** Comments ***************/
 
-  createCommentObject = (startPosition) => {
-    // Creates a new node, then adds it to the selected graph
-    let id = nextId();
+  createCommentObject = (id) => {
     let newComment = {
       _id: id,
-      savedPosition: startPosition,
-      savedSize: { x: 200, y: 100 },
       text: "Click here to edit text",
       color: "#fffd8699",
       title: "Title",
@@ -236,6 +178,7 @@ class GraphEditor extends Component {
     this.setState({
       selectedGraph: updatedGraph,
     });
+    this.selectComment(newComment);
   };
 
   updateSelectedComment = (updatedComment) => {
@@ -275,37 +218,27 @@ class GraphEditor extends Component {
   /******* Hotkey Handling *************/
 
   handleKeyPress = (event) => {
-    if (event.key == "Delete" && this.state.isDeleteActive) {
+    if (event.key == "Delete") {
       this.deleteSelection();
     }
   };
 
   deleteSelection = () => {
     if (this.state.selectedObject != null) {
-      if (this.state.selectedObjectType == "Node") {
-        //Delete node
-        this.deleteSelectedNode();
-      } else if (this.state.selectedObjectType == "Connection") {
-        // Delete connection
-        this.deleteSelectedConnection();
+      if (this.state.selectedObjectType == "Class") {
+        //Delete class
+        this.deleteSelectedClass();
       } else if (this.state.selectedObjectType == "Comment") {
-        // Delete connection
+        // Delete comment
         this.deleteSelectedComment();
       }
     }
   };
 
-  deleteSelectedNode = () => {
+  deleteSelectedClass = () => {
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.nodes = this.state.selectedGraph.nodes.filter(
-      (node) => node.classObject._id != this.state.selectedObject.classObject._id
-    );
-
-    // Delete any associated connections too
-    updatedGraph.connections = this.state.selectedGraph.connections.filter(
-      (conn) =>
-        conn.startId != this.state.selectedObject.classObject._id &&
-        conn.endId != this.state.selectedObject.classObject._id
+    updatedGraph.classes = this.state.selectedGraph.classes.filter(
+      (c) => c._id != this.state.selectedObject._id
     );
 
     this.setState({
@@ -315,20 +248,7 @@ class GraphEditor extends Component {
     this.clearSelection();
   };
 
-  deleteSelectedConnection = () => {
-    let updatedGraph = Object.assign({}, this.state.selectedGraph);
-    updatedGraph.connections = this.state.selectedGraph.connections.filter(
-      (conn) =>
-        conn.startId != this.state.selectedObject.startId ||
-        conn.endId != this.state.selectedObject.endId
-    );
-    this.setState({
-      selectedGraph: updatedGraph,
-    });
-    //this.addToastNotification("Connection deleted");
-
-    this.clearSelection();
-  };
+  //
 
   deleteSelectedComment = () => {
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
@@ -374,19 +294,17 @@ class GraphEditor extends Component {
           selectedGraph={this.state.selectedGraph}
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
-          selectClass={this.selectClassObject}
+          selectClass={this.selectClass}
           panelWidth={this.state.heirarchyPanelWidth}
           handleResize={this.handleResizeHeirarchyPanel}
         />
         <CanvasPanel
-          createNodeObject={this.createCanvasNode}
+          createClassObject={this.createClassObject}
           createCommentObject={this.createCommentObject}
-          selectNode={this.selectNode}
+          selectClass={this.selectClass}
           selectedGraph={this.state.selectedGraph}
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
-          tryCreateConnection={this.tryCreateConnection}
-          updateSelectedNode={this.updateSelectedNode}
           onConnectionSelected={this.selectConnection}
           toastNotifications={this.state.toastNotifications}
           addToastNotification={this.addToastNotification}
@@ -399,7 +317,7 @@ class GraphEditor extends Component {
         <PropertiesPanel
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
-          updateSelectedNode={this.updateSelectedNode}
+          updateSelectedClass={this.updateSelectedClass}
           panelWidth={this.state.propertiesPanelWidth}
           handleResize={this.handleResizePropertiesPanel}
           updateSelectedComment={this.updateSelectedComment}

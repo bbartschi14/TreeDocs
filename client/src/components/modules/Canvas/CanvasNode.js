@@ -8,13 +8,14 @@ import "./CanvasNode.css";
  *
  * Proptypes
  * @param {NodeObject} nodeObject object represented by this node
- * @param {IntPoint} savedPosition x,y coordinates to load node at
- * @param {bool} isAttachedToCursor set to true when created using the create button
+ * @param {ClassObject} classObject with id equal to the node
  * @param {bool} isSelected
  * @param {(NodeObject) => ()} selectNodeWithGrid function to select a node
  * @param {(NodeObject, bool)=>()} createConnectionFromNode start connection. second argument is true if input, false if output
  * @param {(NodeObject, bool, bool)=>()} handleNodeConnectionHovered first bool is true for input, false for output. Second bool is true if hovered, else false
  * @param {(IntPoint) => {}} handleNodePositionChanged callback to update position
+ * @param {bool} isBeingPlaced
+ * @param {IntPoint} placingMousePos
  */
 class CanvasNode extends Component {
   constructor(props) {
@@ -22,85 +23,37 @@ class CanvasNode extends Component {
     this.state = {
       initialPosition: { x: 0, y: 0 },
       initialMousePosition: { x: 0, y: 0 },
-      position: { x: 0, y: 0 },
       isDragging: false,
-      shouldGetMousePos: false,
     };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.isDragging && !prevState.isDragging) {
-      document.addEventListener("mousemove", this.handleOnMouseMove);
-      document.addEventListener("mouseup", this.handleOnMouseUp);
-    } else if (!this.state.isDragging && prevState.isDragging) {
-      document.removeEventListener("mousemove", this.handleOnMouseMove);
-      document.removeEventListener("mouseup", this.handleOnMouseUp);
-    }
-  }
-
-  componentDidMount() {
-    this.setState({
-      position: {
-        x: this.props.savedPosition.x,
-        y: this.props.savedPosition.y,
-      },
-      initialPosition: {
-        x: this.props.savedPosition.x,
-        y: this.props.savedPosition.y,
-      },
-      shouldGetMousePos: this.props.isAttachedToCursor,
-      isDragging: this.props.isAttachedToCursor,
-    });
   }
 
   handleOnMouseDown = (event) => {
     if (event.button !== 0) return;
-    this.props.setDeleteActive(true);
-
     this.props.selectNodeWithGrid(this.props.nodeObject);
-    /** Handle placement after auto dragging from add button */
-    if (this.state.isDragging) {
-      this.setState({ isDragging: false });
-      return;
-    }
-
+    document.addEventListener("mousemove", this.handleOnMouseMove);
+    document.addEventListener("mouseup", this.handleOnMouseUp);
     this.setState({
       isDragging: true,
-      initialPosition: this.state.position,
+      initialPosition: this.props.nodeObject.savedPosition,
       initialMousePosition: { x: event.pageX, y: event.pageY },
     });
+
     event.stopPropagation();
     event.preventDefault();
   };
 
   handleOnMouseUp = (event) => {
     this.setState({ isDragging: false });
-
+    document.removeEventListener("mousemove", this.handleOnMouseMove);
+    document.removeEventListener("mouseup", this.handleOnMouseUp);
     event.stopPropagation();
     event.preventDefault();
   };
 
   handleOnMouseMove = (event) => {
-    // If a node starts attached to the cursor, the first mouse move is used to get the intial mouse position
-    if (this.state.shouldGetMousePos) {
-      this.setState({
-        initialMousePosition: { x: event.pageX, y: event.pageY },
-        shouldGetMousePos: false,
-      });
-      return;
-    }
-
     if (!this.state.isDragging) return;
-
     let deltaX = event.pageX - this.state.initialMousePosition.x;
     let deltaY = event.pageY - this.state.initialMousePosition.y;
-
-    this.setState({
-      position: {
-        x: this.state.initialPosition.x + deltaX,
-        y: this.state.initialPosition.y + deltaY,
-      },
-    });
 
     this.props.handleNodePositionChanged({
       x: this.state.initialPosition.x + deltaX,
@@ -127,7 +80,20 @@ class CanvasNode extends Component {
     this.props.handleNodeConnectionHovered(this.props.nodeObject, false, isHovered);
   };
 
+  componentDidMount() {
+    if (this.props.isBeingPlaced) {
+      this.setState({
+        isDragging: true,
+        initialMousePosition: this.props.placingMousePos,
+        initialPosition: this.props.nodeObject.savedPosition,
+      });
+      document.addEventListener("mousemove", this.handleOnMouseMove);
+      document.addEventListener("mouseup", this.handleOnMouseUp);
+    }
+  }
+
   render() {
+    let shadow = this.state.isDragging ? " u-hovering " : " u-default-shadow ";
     let mainClass = "CanvasNode-innerContainer";
     if (this.props.isSelected) {
       mainClass += " CanvasNode-selected";
@@ -136,13 +102,16 @@ class CanvasNode extends Component {
     }
     return (
       <div
-        className="CanvasNode-base"
-        style={{ left: this.state.position.x + "px", top: this.state.position.y + "px" }}
+        className={"CanvasNode-base "}
+        style={{
+          left: this.props.nodeObject.savedPosition.x + "px",
+          top: this.props.nodeObject.savedPosition.y + "px",
+        }}
       >
-        <div className="CanvasNode-container u-default-shadow u-noselect">
+        <div className={"CanvasNode-container u-noselect " + shadow}>
           <div className={mainClass} onMouseDown={this.handleOnMouseDown}>
-            <div className="CanvasNode-nameText">{this.props.nodeObject.classObject.name}</div>
-            <div className="CanvasNode-parentText">{this.props.nodeObject.classObject.parent}</div>
+            <div className="CanvasNode-nameText">{this.props.classObject.name}</div>
+            <div className="CanvasNode-parentText">{this.props.classObject.parent}</div>
           </div>
 
           <div className="CanvasNode-circleContainer CanvasNode-input">

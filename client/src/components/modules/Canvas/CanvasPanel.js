@@ -7,7 +7,10 @@ import nextId from "react-id-generator";
 import "./CanvasPanel.css";
 import CanvasSnackbar from "./CanvasSnackbar";
 import CanvasCommentsContainer from "./CanvasComments/CanvasCommentsContainer";
+import CreateCanvasItemButton from "./CreateCanvasItemButton";
 
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import AddCommentIcon from "@material-ui/icons/AddComment";
 /**
  * Panel component for the main center canvas. Will be used to control
  * the placement, arrangement, connection, and selection of graph nodes.
@@ -16,11 +19,10 @@ import CanvasCommentsContainer from "./CanvasComments/CanvasCommentsContainer";
  * Proptypes
  * @param TODO {ProjectObject} current working project
  * @param {GraphObject} selectedGraph working graph in working project
- * @param {(IntPoint) => ()} createNodeObject function that creates a new node object and attaches it to the cursor at the position passed
- * @param {(NodeObject) => ()} selectNode function to select a node
+ * @param {(string id) => ()} createClassObject function that creates a new class object
+ * @param {(ClassObject) => ()} selectClass function to select a node
  * @param {SelectableObject} selectedObject
  * @param {string} selectedObjectType
- * @param {(NodeObject) => ()} updateSelectedNode function to update node
  * @param {[ToastObject]} toastNotifications
  * @param {string} addToastNotification
  * @param {ToastObject} removeToastNotification
@@ -28,16 +30,41 @@ import CanvasCommentsContainer from "./CanvasComments/CanvasCommentsContainer";
  * @param {() => ()} deselectObjects
  *
  * Connection Proptypes
- * @param {(ConnectionObject) => ()} tryCreateConnection callback function for letting the Editor know that we've indicated a connection between an output and input
  * @param {(ConnectionObject => ())} onConnectionSelected
  *
  * Comments
- * @param {(IntPoint) => ()} createCommentObject
+ * @param {string id) => ()} createCommentObject
  * @param {(CommentObject) => ()} updateSelectedComment
  * @param {(CommentObject) => ()} selectComment
  *
  */
 class CanvasPanel extends Component {
+  /**
+   * @typedef CanvasObject
+   * @property {NodeObject[]} nodes
+   * @property {ConnectionObject[]} connections
+   */
+
+  /**
+   * @typedef NodeObject // Considered to be a Class Node
+   * @property {string} _id // Must correspond to a Class Object
+   * @property {IntPoint} savedPosition
+   */
+
+  /**
+   * @typedef CommentNodeObject
+   * @property {string} _id // Must correspond to a Comment Object
+   * @property {IntPoint} savedPosition
+   * @property {IntPoint} savedSize
+   */
+
+  /**
+   * @typedef ConnectionObject // The connecton object id is a concatenation of the startNode.classObject._id and endNode.classObject._id
+   * @property {string} startId
+   * @property {string} endId
+   * @property {bool} startIsInput determines the order of input->output or output->input
+   */
+
   constructor(props) {
     super(props);
     this.state = {
@@ -50,29 +77,119 @@ class CanvasPanel extends Component {
       currentPlacingPosition: { x: 0, y: 0 },
       transformState: "none", // "none", "panning"
       mousePos: { x: 0, y: 0 },
+      nodes: [],
+      connections: [],
+      commentNodes: [],
+      isPlacingNode: false,
+      isPlacingCommentNode: false,
     };
     this.containerRef = React.createRef();
     this.scrollingRef = React.createRef();
   }
 
   handleNewNodeButtonClicked = (event) => {
-    this.props.setDeleteActive(false);
-    this.props.createNodeObject({
-      x: event.pageX - this.containerRef.current.offsetLeft + this.scrollingRef.current.scrollLeft,
-      y: event.pageY - this.containerRef.current.offsetTop + this.scrollingRef.current.scrollTop,
+    let id = nextId();
+    // Create node object
+    let newNode = {
+      _id: id,
+      savedPosition: {
+        x:
+          event.pageX - this.containerRef.current.offsetLeft + this.scrollingRef.current.scrollLeft,
+        y: event.pageY - this.containerRef.current.offsetTop + this.scrollingRef.current.scrollTop,
+      },
+    };
+    this.setState({
+      nodes: this.state.nodes.concat([newNode]),
+      mousePos: { x: event.pageX, y: event.pageY },
     });
+
+    this.props.createClassObject(id);
+
+    this.setState({ isPlacingNode: true });
+    document.addEventListener("mouseup", this.handleDonePlacing);
+    event.preventDefault();
+  };
+
+  handleDonePlacing = (event) => {
+    this.setState({ isPlacingNode: false });
+    document.removeEventListener("mouseup", this.handleDonePlacing);
   };
 
   selectNodeWithGrid = (nodeObj) => {
     // Handle grid logic then call super select prop function
-    this.props.selectNode(nodeObj);
+    let selectedClass = this.props.selectedGraph.classes.filter((c) => c._id == nodeObj._id)[0];
+    this.props.selectClass(selectedClass);
+  };
+
+  updateSelectedNode = (newNodeObject) => {
+    let updatedNodes = Object.assign({}, this.state.nodes);
+    updatedNodes = this.state.nodes.map((node) =>
+      node._id == newNodeObject._id ? newNodeObject : node
+    );
+    this.setState({
+      nodes: updatedNodes,
+    });
   };
 
   handleNodePositionChanged = (newPosition) => {
     //console.log(newPosition);
-    let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.savedPosition = newPosition; // update the parent property, assign a new value
-    this.props.updateSelectedNode(updatedObject);
+    let updatedObject = Object.assign({}, this.props.selectedObject);
+    updatedObject.savedPosition = newPosition;
+    this.updateSelectedNode(updatedObject);
+  };
+
+  handleNewCommentButtonClicked = (event) => {
+    let id = nextId();
+    // Create comment node object
+    let pos = {
+      x:
+        event.pageX -
+        this.containerRef.current.offsetLeft +
+        this.scrollingRef.current.scrollLeft -
+        100,
+      y:
+        event.pageY -
+        this.containerRef.current.offsetTop +
+        this.scrollingRef.current.scrollTop -
+        80,
+    };
+    this.createCommentNodeObject(pos, id);
+
+    this.setState({
+      mousePos: { x: event.pageX, y: event.pageY },
+    });
+
+    this.setState({ isPlacingCommentNode: true });
+    document.addEventListener("mouseup", this.handleDonePlacingComment);
+    event.preventDefault();
+  };
+
+  handleDonePlacingComment = (event) => {
+    this.setState({ isPlacingCommentNode: false });
+    document.removeEventListener("mouseup", this.handleDonePlacingComment);
+  };
+
+  createCommentNodeObject = (position, id) => {
+    let newCommentNode = {
+      _id: id,
+      savedPosition: { x: position.x, y: position.y },
+      savedSize: { x: 200, y: 200 },
+    };
+    this.props.createCommentObject(id);
+
+    this.setState({ commentNodes: this.state.commentNodes.concat([newCommentNode]) });
+
+    return newCommentNode;
+  };
+
+  updateSelectedCommentNode = (newCommentNode) => {
+    let updatedCommentNodes = Object.assign({}, this.state.commentNodes);
+    updatedCommentNodes = this.state.commentNodes.map((node) =>
+      node._id == newCommentNode._id ? newCommentNode : node
+    );
+    this.setState({
+      commentNodes: updatedCommentNodes,
+    });
   };
 
   handleScroll = (event) => {
@@ -128,6 +245,20 @@ class CanvasPanel extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
+    // Handle class deleted
+    let newClasses = this.props.selectedGraph.classes;
+    let prevClasses = prevProps.selectedGraph.classes;
+    if (newClasses.length < prevClasses.length) {
+      this.onNodeDeleted(newClasses, prevClasses);
+    }
+
+    // Handle comment deleted
+    let newComments = this.props.selectedGraph.comments;
+    let prevComments = prevProps.selectedGraph.comments;
+    if (newComments.length < prevComments.length) {
+      this.onCommentDeleted(newComments, prevComments);
+    }
+
     if (this.state.transformState == "panning" && prevState.transformState == "none") {
       document.addEventListener("mousemove", this.handleMiddleMouseMove);
       document.addEventListener("mouseup", this.handleMiddleMouseUp);
@@ -136,6 +267,52 @@ class CanvasPanel extends Component {
       document.removeEventListener("mouseup", this.handleMiddleMouseUp);
     }
   }
+
+  onNodeDeleted = (newClasses, prevClasses) => {
+    let deletedId = "";
+    for (var i = 0; i < prevClasses.length; i++) {
+      let found = false;
+      for (var j = 0; j < newClasses.length; j++) {
+        if (prevClasses[i]._id == newClasses[j]._id) {
+          found = true;
+        }
+      }
+      if (!found) {
+        deletedId = prevClasses[i]._id;
+        break;
+      }
+    }
+
+    this.setState({
+      nodes: this.state.nodes.filter((node) => node._id != deletedId),
+    });
+
+    this.setState({
+      connections: this.state.connections.filter(
+        (conn) => conn.startId != deletedId && conn.endId != deletedId
+      ),
+    });
+  };
+
+  onCommentDeleted = (newComments, prevComments) => {
+    let deletedId = "";
+    for (var i = 0; i < prevComments.length; i++) {
+      let found = false;
+      for (var j = 0; j < newComments.length; j++) {
+        if (prevComments[i]._id == newComments[j]._id) {
+          found = true;
+        }
+      }
+      if (!found) {
+        deletedId = prevComments[i]._id;
+        break;
+      }
+    }
+
+    this.setState({
+      commentNodes: this.state.commentNodes.filter((node) => node._id != deletedId),
+    });
+  };
 
   /*************************** */
 
@@ -160,11 +337,11 @@ class CanvasPanel extends Component {
   handleMouseUpWhileConnecting = () => {
     // If we are hovering over a (potentially) valid node, try connecting them in the Editor
     if (this.state.hoveredNode != null) {
-      let startNodeId = this.state.connectionStartNode.classObject._id;
-      let endNodeId = this.state.hoveredNode.classObject._id;
+      let startNodeId = this.state.connectionStartNode._id;
+      let endNodeId = this.state.hoveredNode._id;
       if (startNodeId != endNodeId) {
         if (this.state.hoveredNodeIsInput != this.state.connectionStartType) {
-          this.props.tryCreateConnection({
+          this.tryCreateConnection({
             startId: startNodeId,
             endId: endNodeId,
             startIsInput: this.state.connectionStartType,
@@ -189,27 +366,105 @@ class CanvasPanel extends Component {
     this.setState({ hoveredNode: newNode, hoveredNodeIsInput: isInputCircle });
   };
 
+  tryCreateConnection = (connectionObj) => {
+    // Check both nodes still exist
+    let startExists = false;
+    let endExists = false;
+
+    for (var i = 0; i < this.state.nodes.length; i++) {
+      if (this.state.nodes[i]._id == connectionObj.startId) {
+        startExists = true;
+      }
+      if (this.state.nodes[i]._id == connectionObj.endId) {
+        endExists = true;
+      }
+    }
+
+    if (!startExists || !endExists) {
+      return;
+    }
+
+    // Filter any connections that are the same two nodes
+
+    let existingConnections = this.state.connections.filter(function (conn) {
+      if (conn.startIsInput == connectionObj.startIsInput) {
+        if (conn.startId == connectionObj.startId && conn.endId == connectionObj.endId) {
+          return true;
+        }
+      } else {
+        if (conn.startId == connectionObj.endId && conn.endId == connectionObj.startId) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    // If the connection already exists, don't create the new one
+    if (existingConnections.length > 0) {
+      //console.log("Connection already exists");
+    } else {
+      // Create the new one
+      //console.log("Connection added");
+      this.addConnectionToCanvas(connectionObj);
+    }
+  };
+
+  addConnectionToCanvas = (newConnection) => {
+    this.setState({ connections: this.state.connections.concat([newConnection]) });
+  };
+
+  deleteSelectedConnection = () => {
+    this.setState({
+      connections: this.state.connections.filter(
+        (conn) =>
+          conn.startId != this.props.selectedObject.startId ||
+          conn.endId != this.props.selectedObject.endId
+      ),
+    });
+
+    this.props.deselectObjects();
+  };
+
   /***************** */
+
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyPress);
+  }
+
+  handleKeyPress = (event) => {
+    if (event.key == "Delete" && this.props.selectedObjectType == "Connection") {
+      this.deleteSelectedConnection();
+    }
+  };
 
   render() {
     let nodesList = null;
-    nodesList = this.props.selectedGraph.nodes.map((nodeObj) => (
-      <CanvasNode
-        key={`Node_${nodeObj.classObject._id}`}
-        nodeObject={nodeObj}
-        isAttachedToCursor={nodeObj.isAttachedToCursor}
-        savedPosition={nodeObj.savedPosition}
-        isSelected={
-          this.props.selectedObjectType == "Node" &&
-          nodeObj.classObject._id == this.props.selectedObject?.classObject._id
-        }
-        selectNodeWithGrid={this.selectNodeWithGrid}
-        createConnectionFromNode={this.createConnectionFromNode}
-        handleNodeConnectionHovered={this.handleNodeConnectionHovered}
-        handleNodePositionChanged={this.handleNodePositionChanged}
-        setDeleteActive={this.props.setDeleteActive}
-      />
-    ));
+    nodesList = this.state.nodes.map((nodeObj, i) => {
+      let associatedClassList = this.props.selectedGraph.classes.filter(
+        (c) => c._id == nodeObj._id
+      );
+      return associatedClassList.length > 0 ? (
+        <CanvasNode
+          key={`Node_${nodeObj._id}`}
+          nodeObject={nodeObj}
+          classObject={associatedClassList[0]}
+          isSelected={
+            this.props.selectedObjectType == "Class" &&
+            nodeObj._id == this.props.selectedObject?._id
+          }
+          selectNodeWithGrid={this.selectNodeWithGrid}
+          createConnectionFromNode={this.createConnectionFromNode}
+          handleNodeConnectionHovered={this.handleNodeConnectionHovered}
+          handleNodePositionChanged={this.handleNodePositionChanged}
+          isBeingPlaced={i == this.state.nodes.length - 1 && this.state.isPlacingNode}
+          placingMousePos={
+            i == this.state.nodes.length - 1 && this.state.isPlacingNode
+              ? this.state.mousePos
+              : { x: 0, y: 0 }
+          }
+        />
+      ) : null;
+    });
 
     return (
       <div
@@ -229,19 +484,24 @@ class CanvasPanel extends Component {
             <CanvasBackgroundGrid
               gridSize={60}
               deselectObjects={this.props.deselectObjects}
-              createCommentObject={this.props.createCommentObject}
+              createCommentObject={this.createCommentNodeObject}
             />
 
             <CanvasCommentsContainer
+              commentNodes={this.state.commentNodes}
+              isPlacingCommentNode={this.state.isPlacingCommentNode}
+              mousePos={this.state.mousePos}
               selectedGraph={this.props.selectedGraph}
               selectedObject={this.props.selectedObject}
               selectedObjectType={this.props.selectedObjectType}
               selectComment={this.props.selectComment}
               updateSelectedComment={this.props.updateSelectedComment}
+              updateSelectedCommentNode={this.updateSelectedCommentNode}
             />
 
             <CanvasConnectionsContainer
-              selectedGraph={this.props.selectedGraph}
+              connections={this.state.connections}
+              nodes={this.state.nodes}
               connectionStartNode={this.state.connectionStartNode}
               connectionStartType={this.state.connectionStartType}
               currentPlacingPosition={this.state.currentPlacingPosition}
@@ -263,11 +523,20 @@ class CanvasPanel extends Component {
           ))}
         </div>
 
-        <div
-          className="CanvasPanel-createNodeButton u-noselect"
-          onClick={this.handleNewNodeButtonClicked}
-        >
-          +
+        <div className="CanvasPanel-buttonContainer">
+          <CreateCanvasItemButton
+            onCreateStart={this.handleNewNodeButtonClicked}
+            isDragging={this.state.isPlacingNode}
+          >
+            <PersonAddIcon />
+          </CreateCanvasItemButton>
+
+          <CreateCanvasItemButton
+            onCreateStart={this.handleNewCommentButtonClicked}
+            isDragging={this.state.isPlacingCommentNode}
+          >
+            <AddCommentIcon />
+          </CreateCanvasItemButton>
         </div>
       </div>
     );

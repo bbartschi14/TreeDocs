@@ -17,12 +17,31 @@ import "./IconFromName.css";
 class IconFromName extends Component {
   constructor(props) {
     super(props);
-    this.state = { defaultColor: "#999999", displayTooltip: false, tooltipPos: { x: 0, y: 0 } };
+    this.state = {
+      defaultColor: "#999999",
+      displayTooltip: false,
+      tooltipPos: { x: 0, y: 0 },
+      tooltipWidth: 0,
+      tooltipPercentOffset: 0,
+    };
+    this.tooltipRef = React.createRef();
   }
 
   showTooltip = (event) => {
     if (typeof this.props.tooltipText != "undefined") {
-      this.setState({ displayTooltip: true, tooltipPos: { x: event.pageX, y: event.pageY } });
+      this.setState(
+        {
+          displayTooltip: true,
+          tooltipPos: { x: event.pageX, y: event.pageY },
+          tooltipPercentOffset: event.pageX / window.innerWidth,
+        },
+        () => {
+          //console.log(this.tooltipRef.current.getBoundingClientRect());
+          this.setState({
+            tooltipWidth: this.tooltipRef.current.getBoundingClientRect().width,
+          });
+        }
+      );
     }
   };
 
@@ -32,7 +51,13 @@ class IconFromName extends Component {
 
   moveTooltip = (event) => {
     if (this.state.displayTooltip) {
-      this.setState({ tooltipPos: { x: event.pageX, y: event.pageY } });
+      this.setState({
+        tooltipPos: {
+          x: event.pageX,
+          y: event.pageY,
+        },
+        tooltipPercentOffset: event.pageX / window.innerWidth,
+      });
     }
   };
 
@@ -64,8 +89,13 @@ class IconFromName extends Component {
         <div>{icon}</div>
         {this.state.displayTooltip ? (
           <div
+            ref={this.tooltipRef}
             className="IconFromName-tooltipContainer u-default-shadow"
-            style={{ left: this.state.tooltipPos.x, top: this.state.tooltipPos.y - 30 }}
+            style={{
+              left:
+                this.state.tooltipPos.x - this.state.tooltipWidth * this.state.tooltipPercentOffset,
+              top: this.state.tooltipPos.y - 30,
+            }}
           >
             {this.props.tooltipText}
           </div>

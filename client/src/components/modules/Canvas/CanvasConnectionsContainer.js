@@ -6,7 +6,9 @@ import CanvasPathConnection from "./CanvasPathConnection";
  * SVG container component for all the line connections
  *
  * Proptypes
- * @param {GraphObject} selectedGraph
+ * @param {ConnectionObjects[]} connections
+ * @param {NodeObjects[]} nodes
+ * @param {CanvasObject} canvasObject // Contains nodeObject data
  * @param {SelectableObject} selectedObject
  * @param {string} selectedObjectType
  * @param {NodeObject} connectionStartNode live connection not yet attached
@@ -67,19 +69,17 @@ class CanvasConnectionsContainer extends Component {
 
   render() {
     let pathsList = [];
-    let connections = this.props.selectedGraph.connections;
+    let connections = this.props.connections;
     for (var i = 0; i < connections.length; i++) {
       let offset = 50;
 
       // Get start position
-      let startPosition = this.props.selectedGraph.nodes.filter(
-        (node) => node.classObject._id == connections[i].startId
-      )[0].savedPosition;
+      let startPosition = this.props.nodes.filter((node) => node._id == connections[i].startId)[0]
+        .savedPosition;
 
       // Get end position
-      let endPosition = this.props.selectedGraph.nodes.filter(
-        (node) => node.classObject._id == connections[i].endId
-      )[0].savedPosition;
+      let endPosition = this.props.nodes.filter((node) => node._id == connections[i].endId)[0]
+        .savedPosition;
 
       // Flop offsets if needed
       if (connections[i].startIsInput) {
@@ -117,7 +117,7 @@ class CanvasConnectionsContainer extends Component {
             +offset * (this.props.connectionStartType ? -1 : 1) +
             this.state.currentMouseDelta.y
           } Z`}
-          key={`ConnectionPath_${this.props.connectionStartNode.classObject._id}_to_empty`}
+          key={`ConnectionPath_${this.props.connectionStartNode._id}_to_empty`}
         />
       );
     }

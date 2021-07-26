@@ -27,13 +27,12 @@ class HeirarchyPanel extends Component {
 
   render() {
     let classList = null;
-    classList = this.props.selectedGraph.nodes.map((nodeObj) => (
+    classList = this.props.selectedGraph.classes.map((classObj) => (
       <HeirarchyClassItem
-        key={`Item_${nodeObj.classObject._id}`}
-        classObject={nodeObj.classObject}
+        key={`Item_${classObj._id}`}
+        classObject={classObj}
         isSelected={
-          this.props.selectedObjectType == "Node" &&
-          nodeObj.classObject._id == this.props.selectedObject?.classObject._id
+          this.props.selectedObjectType == "Class" && classObj._id == this.props.selectedObject?._id
         }
         indentLevel={0}
         onClassClicked={this.handleClassSelected}

@@ -47,9 +47,9 @@ class VariableItem extends Component {
   };
 
   componentDidMount() {
-    if (this.state.isFirstTime) {
-      this.handleStartEditingClick(null);
-    }
+    // if (this.state.isFirstTime) {
+    //   this.handleStartEditingClick(null);
+    // }
   }
 
   render() {

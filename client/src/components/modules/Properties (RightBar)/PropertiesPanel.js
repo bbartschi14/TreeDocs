@@ -22,7 +22,7 @@ import PropertiesCommentPanel from "./PropertiesCommentPanel.js";
  * Proptypes
  * @param {SelectableObject} selectedObject current selectedObject
  * @param {string} selectedObjectType
- * @param {(NodeObject) => ()} updateSelectedNode callback function passing in the new updated selected node
+ * @param {(ClassObject) => ()} updateSelectedClass callback function passing in the new updated selected class
  */
 class PropertiesPanel extends Component {
   constructor(props) {
@@ -31,44 +31,40 @@ class PropertiesPanel extends Component {
 
   handleNamePropertyChanged = (event) => {
     let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.classObject.name = event.target.value; // update the name property, assign a new value
-    this.props.updateSelectedNode(updatedObject);
+    updatedObject.name = event.target.value; // update the name property, assign a new value
+    this.props.updateSelectedClass(updatedObject);
   };
 
   handleParentPropertyChanged = (event) => {
     let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.classObject.parent = event.target.value; // update the parent property, assign a new value
-    this.props.updateSelectedNode(updatedObject);
+    updatedObject.parent = event.target.value; // update the parent property, assign a new value
+    this.props.updateSelectedClass(updatedObject);
   };
 
   handleDescriptionPropertyChanged = (event) => {
     console.log(event.target.value);
     let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
-    updatedObject.classObject.description = event.target.value; // update the parent property, assign a new value
+    updatedObject.description = event.target.value; // update the parent property, assign a new value
 
-    this.props.updateSelectedNode(updatedObject);
+    this.props.updateSelectedClass(updatedObject);
   };
 
   handleAddFunctionToClass = (newFunction) => {
     let updatedNode = Object.assign({}, this.props.selectedObject);
-    updatedNode.classObject.functions = this.props.selectedObject.classObject.functions.concat([
-      newFunction,
-    ]);
-    this.props.updateSelectedNode(updatedNode);
+    updatedNode.functions = this.props.selectedObject.functions.concat([newFunction]);
+    this.props.updateSelectedClass(updatedNode);
   };
 
   handleAddVariableToClass = (newVariable) => {
     let updatedNode = Object.assign({}, this.props.selectedObject);
-    updatedNode.classObject.variables = this.props.selectedObject.classObject.variables.concat([
-      newVariable,
-    ]);
-    this.props.updateSelectedNode(updatedNode);
+    updatedNode.variables = this.props.selectedObject.variables.concat([newVariable]);
+    this.props.updateSelectedClass(updatedNode);
   };
 
   handleAddFunctionButtonClicked = () => {
     let id = nextId();
     let newFunction = {
-      parent: this.props.selectedObject.classObject,
+      parent: this.props.selectedObject,
       name: "NewFunction_" + id,
       _id: id,
       returnValue: { name: "DefaultParam", type: 1, typeName: "Int" },
@@ -80,7 +76,7 @@ class PropertiesPanel extends Component {
   handleAddVariableButtonClicked = () => {
     let id = nextId();
     let newVariable = {
-      parent: this.props.selectedObject.classObject,
+      parent: this.props.selectedObject,
       _id: id,
       parameterObject: { name: "NewVariable_" + id, type: 1, typeName: "Int" },
     };
@@ -89,18 +85,18 @@ class PropertiesPanel extends Component {
 
   updateFunctionInNodeObject = (updatedFuncObject) => {
     let updatedNodeObject = Object.assign({}, this.props.selectedObject);
-    updatedNodeObject.classObject.functions = this.props.selectedObject.classObject.functions.map(
-      (func) => (func._id == updatedFuncObject._id ? updatedFuncObject : func)
+    updatedNodeObject.functions = this.props.selectedObject.functions.map((func) =>
+      func._id == updatedFuncObject._id ? updatedFuncObject : func
     );
-    this.props.updateSelectedNode(updatedNodeObject);
+    this.props.updateSelectedClass(updatedNodeObject);
   };
 
   updateVariableInNodeObject = (updatedVariableObject) => {
     let updatedNodeObject = Object.assign({}, this.props.selectedObject);
-    updatedNodeObject.classObject.variables = this.props.selectedObject.classObject.variables.map(
-      (variable) => (variable._id == updatedVariableObject._id ? updatedVariableObject : variable)
+    updatedNodeObject.variables = this.props.selectedObject.variables.map((variable) =>
+      variable._id == updatedVariableObject._id ? updatedVariableObject : variable
     );
-    this.props.updateSelectedNode(updatedNodeObject);
+    this.props.updateSelectedClass(updatedNodeObject);
   };
 
   render() {
@@ -114,14 +110,14 @@ class PropertiesPanel extends Component {
           </div>
         </div>
       );
-    } else if (this.props.selectedObjectType == "Node") {
+    } else if (this.props.selectedObjectType == "Class") {
       // Display Properties
       content = (
         <div className="PropertiesPanel-container">
           <div className="PropertiesPanel-upperContainer">
             <EditableText
               customClass="PropertiesPanel-selectionName"
-              text={this.props.selectedObject.classObject.name}
+              text={this.props.selectedObject.name}
               onTextChanged={this.handleNamePropertyChanged}
               iconSize="large"
               propertyName="Class"
@@ -130,7 +126,7 @@ class PropertiesPanel extends Component {
 
             <EditableText
               customClass="PropertiesPanel-selectionParentName"
-              text={this.props.selectedObject.classObject.parent}
+              text={this.props.selectedObject.parent}
               onTextChanged={this.handleParentPropertyChanged}
               iconSize="medium"
               propertyName="Parent"
@@ -141,11 +137,11 @@ class PropertiesPanel extends Component {
             <CollapsablePanel title="Description" iconName="Description" iconSize="small">
               <div style={{ height: "8px" }}></div>
               <EditableTextBlock
-                text={this.props.selectedObject.classObject.description}
+                text={this.props.selectedObject.description}
                 onTextChanged={this.handleDescriptionPropertyChanged}
               >
                 <ul>
-                  <li>{this.props.selectedObject.classObject.description}</li>
+                  <li>{this.props.selectedObject.description}</li>
                 </ul>
               </EditableTextBlock>
               <div style={{ height: "8px" }}></div>
@@ -160,7 +156,7 @@ class PropertiesPanel extends Component {
               buttonCallback={this.handleAddFunctionButtonClicked}
             >
               <div style={{ height: "8px" }}></div>
-              {this.props.selectedObject.classObject.functions.map((func) => (
+              {this.props.selectedObject.functions.map((func) => (
                 <FunctionItem
                   functionObject={func}
                   key={func._id}
@@ -180,7 +176,7 @@ class PropertiesPanel extends Component {
               buttonCallback={this.handleAddVariableButtonClicked}
             >
               <div style={{ height: "8px" }}></div>
-              {this.props.selectedObject.classObject.variables.map((variable) => (
+              {this.props.selectedObject.variables.map((variable) => (
                 <VariableItem
                   variableObject={variable}
                   key={variable._id}

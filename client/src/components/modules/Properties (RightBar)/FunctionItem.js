@@ -108,7 +108,7 @@ class FunctionItem extends Component {
         <div className="FunctionItem-subContainer">
           {this.state.editedFunctionObject.parameters.map((param, i) => (
             <FunctionItemParameter
-              key={i}
+              key={"Item_" + i}
               parameterIndex={i}
               selectedParam={param}
               updateSelectedParam={this.updateSelectedParam}
