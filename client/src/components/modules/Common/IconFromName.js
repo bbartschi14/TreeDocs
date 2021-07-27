@@ -4,6 +4,7 @@ import FunctionsIcon from "@material-ui/icons/Functions";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import PersonIcon from "@material-ui/icons/Person";
 import ListIcon from "@material-ui/icons/List";
+import AccountTreeIcon from "@material-ui/icons/AccountTree";
 import "./IconFromName.css";
 /**
  *  Component to load Material UI icon from name
@@ -78,6 +79,8 @@ class IconFromName extends Component {
       icon = <PersonIcon fontSize={this.props.iconSize} style={{ color: useColor }} />;
     } else if (name == "List") {
       icon = <ListIcon fontSize={this.props.iconSize} style={{ color: useColor }} />;
+    } else if (name == "Graph") {
+      icon = <AccountTreeIcon fontSize={this.props.iconSize} style={{ color: useColor }} />;
     }
     return (
       <div

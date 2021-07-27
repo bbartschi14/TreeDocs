@@ -3,6 +3,8 @@ import HeirarchyClassItem from "./HeirarchyClassItem.js";
 import HeirarchyItem from "./HeirarchyItem.js";
 import HorizontalResizer from "../Common/HorizontalResizer.js";
 import "./HeirarchyPanel.css";
+import HeirarchyGraphItem from "./HeirarchyGraphItem.js";
+import AddPropertyButton from "../Properties (RightBar)/AddPropertyButton.js";
 
 /**
  * Panel component for the left-side heirarchy. Contains
@@ -19,10 +21,19 @@ import "./HeirarchyPanel.css";
 class HeirarchyPanel extends Component {
   constructor(props) {
     super(props);
+    this.state = { selectedIndex: 0 };
   }
 
   handleClassSelected = (classObject) => {
     this.props.selectClass(classObject);
+  };
+
+  handleClickHeirarchy = (event) => {
+    this.setState({ selectedIndex: 0 });
+  };
+
+  handleClickGraphs = (event) => {
+    this.setState({ selectedIndex: 1 });
   };
 
   render() {
@@ -44,12 +55,56 @@ class HeirarchyPanel extends Component {
         />
       );
     });
+
+    let graphsList = [];
+    graphsList = this.props.selectedProject.graphs.map((graph, i) => {
+      return (
+        <HeirarchyGraphItem
+          key={`Graph_${graph._id}`}
+          graphObject={graph}
+          isSelected={this.props.selectedGraph._id == graph._id}
+          selectGraph={this.props.selectGraph}
+        />
+      );
+    });
+    graphsList.push(<div key={"Spacer"} style={{ marginTop: "10px" }}></div>);
+    graphsList.push(
+      <AddPropertyButton
+        key={"AddButton"}
+        buttonText={"Create New Graph"}
+        onAddClicked={this.props.addNewGraphToProject}
+      />
+    );
     return (
       <div
         className="HeirarchyPanel-outerContainer"
         style={{ width: this.props.panelWidth + "px" }}
       >
-        <div className="HeirarchyPanel-container u-default-shadow">{classList}</div>
+        <div className="HeirarchyPanel-headings">
+          <div
+            onClick={this.handleClickHeirarchy}
+            className={
+              !this.state.selectedIndex == 0
+                ? "HeirarchyPanel-headingUnselected"
+                : "HeirarchyPanel-selected"
+            }
+          >
+            Heirarchy
+          </div>
+          <div
+            onClick={this.handleClickGraphs}
+            className={
+              !this.state.selectedIndex == 1
+                ? "HeirarchyPanel-headingUnselected"
+                : "HeirarchyPanel-selected"
+            }
+          >
+            Graphs
+          </div>
+        </div>
+        <div className="HeirarchyPanel-container u-default-shadow">
+          {this.state.selectedIndex == 0 ? classList : graphsList}
+        </div>
         <HorizontalResizer
           customClass="HeirarchyPanel-resizeHandle"
           onResize={this.props.handleResize}

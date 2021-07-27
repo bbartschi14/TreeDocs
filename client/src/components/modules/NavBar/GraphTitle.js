@@ -6,7 +6,7 @@ import "./GraphTitle.css";
  * The title of the graph displayed at the top of the page
  *
  * Proptypes
- * @param {GraphObject} currentGraph
+ * @param {GraphObject} selectedGraph
  * @param {(GraphObject) => ()} updateSelectedGraph callback to update the selected graph
  */
 class GraphTitle extends Component {
@@ -15,20 +15,19 @@ class GraphTitle extends Component {
   }
 
   handleGraphNameChanged = (event) => {
-    let updatedObject = Object.assign({}, this.props.currentGraph); // creating copy of selected node prop
+    let updatedObject = Object.assign({}, this.props.selectedGraph); // creating copy of selected node prop
     updatedObject.name = event.target.value; // update the parent property, assign a new value
     this.props.updateSelectedGraph(updatedObject);
   };
 
   render() {
-    //console.log(JSON.stringify(this.props.currentGraph));
     return (
       <div className="GraphTitle-container">
         <div className="GraphTitle-titleWrapper">
           <EditableText
             customClass="GraphTitle-title"
             iconSize="large"
-            text={this.props.currentGraph.name}
+            text={this.props.selectedGraph.name}
             propertyName="Graph"
             onTextChanged={this.handleGraphNameChanged}
           />

@@ -27,3 +27,27 @@
 .HeirarchyPanel-resizeHandle:hover {
   opacity: 0.5;
 }
+
+.HeirarchyPanel-headings {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-weight: var(--weight-m);
+  background-color: white;
+  z-index: 1000;
+}
+
+.HeirarchyPanel-headingUnselected {
+  opacity: 0.3;
+  cursor: pointer;
+}
+
+.HeirarchyPanel-headingUnselected:hover {
+  opacity: 0.8;
+}
+
+.HeirarchyPanel-selected {
+  opacity: 1;
+  cursor: pointer;
+}

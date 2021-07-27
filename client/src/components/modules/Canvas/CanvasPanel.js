@@ -273,6 +273,7 @@ class CanvasPanel extends Component {
     let newClasses = this.props.selectedProject.classes;
     let prevClasses = prevProps.selectedProject.classes;
     if (newClasses.length < prevClasses.length) {
+      console.log("new: " + newClasses.length + ", old: " + prevClasses.length);
       this.onNodeDeleted(newClasses, prevClasses);
     }
 
@@ -281,6 +282,13 @@ class CanvasPanel extends Component {
     let prevComments = prevProps.selectedGraph.comments;
     if (newComments.length < prevComments.length) {
       this.onCommentDeleted(newComments, prevComments);
+    }
+
+    // Resync on graph changed
+    console.log(prevProps.selectedGraph._id);
+    console.log(this.props.selectedGraph._id);
+    if (prevProps.selectedGraph._id != this.props.selectedGraph._id) {
+      this.setState({ nodes: [] });
     }
 
     if (this.state.transformState == "panning" && prevState.transformState == "none") {
@@ -485,6 +493,7 @@ class CanvasPanel extends Component {
 
   render() {
     let nodesList = null;
+    console.log(JSON.stringify(this.state.nodes));
     nodesList = this.state.nodes.map((nodeObj, i) => {
       let associatedClassList = this.props.selectedGraph.classNodeIds.filter(
         (classId) => classId == nodeObj._id
@@ -495,6 +504,7 @@ class CanvasPanel extends Component {
           (c) => c._id == associatedClassList[0]
         )[0];
       }
+
       return associatedClassList.length > 0 ? (
         <CanvasNode
           key={`Node_${nodeObj._id}`}

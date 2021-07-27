@@ -273,6 +273,8 @@ class GraphEditor extends Component {
             selectClass={this.selectClass}
             panelWidth={this.state.heirarchyPanelWidth}
             handleResize={this.handleResizeHeirarchyPanel}
+            addNewGraphToProject={this.props.addNewGraphToProject}
+            selectGraph={this.props.selectGraph}
           />
         </CanvasPanel>
         <PropertiesPanel
