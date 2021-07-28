@@ -6,10 +6,12 @@ import NotFound from "./pages/NotFound.js";
 import nextId from "react-id-generator";
 
 import { get, post } from "../utilities";
+import moment from "moment";
 
 // to use styles, import the necessary CSS files
 import "../utilities.css";
 import "./App.css";
+import ProjectSelection from "./pages/ProjectSelection.js";
 
 /**
  * Define the "App" component as a class.
@@ -22,25 +24,62 @@ class App extends Component {
       userId: undefined,
       userName: undefined,
       userStatus: undefined,
-      selectedProject: {
-        graphs: [
-          {
-            _id: "001",
-            name: "SampleGraph",
-            comments: [],
-            classNodeIds: [],
-          },
-        ],
-        classes: [],
-      },
-      selectedGraph: {
-        _id: "001",
-        name: "SampleGraph",
-        comments: [],
-        classNodeIds: [],
-      },
+      selectedProject: undefined,
+      selectedGraph: undefined,
+      savedCanvasData: undefined,
+      saveSuccessful: false,
     };
   }
+
+  createNewProject = () => {
+    let firstGraphId = "Graph_" + Date.now();
+    let newProject = {
+      graphs: [
+        {
+          _id: firstGraphId,
+          name: "SampleGraph",
+          comments: [],
+          classNodeIds: [],
+        },
+      ],
+      classes: [],
+      name: "Untitled Project",
+    };
+    let data = {
+      project: newProject,
+      canvas: [{ _id: firstGraphId, nodes: [], connections: [], commentNodes: [] }],
+    };
+    const fileData = JSON.stringify(data);
+    const body = {
+      projectData: fileData,
+      name: newProject.name,
+      dateModified: moment().format("MMMM Do YYYY, h:mm a"),
+    };
+    post("/api/project", body).then((project) => {
+      // console.log(project._id);
+      // console.log(project.creator_id);
+      // console.log(JSON.parse(project.projectData));
+      let parsedData = JSON.parse(project.projectData);
+      parsedData.project._id = project._id; // Get mongo ID
+      this.setState({
+        selectedProject: parsedData.project,
+        selectedGraph: parsedData.project.graphs[0],
+        savedCanvasData: parsedData.canvas,
+      });
+    });
+  };
+
+  loadProject = (newProjectId) => {
+    get("api/projectSingle", { _id: newProjectId }).then((project) => {
+      console.log("Loaded " + JSON.stringify(project));
+      project.project._id = newProjectId;
+      this.setState({
+        selectedProject: project.project,
+        selectedGraph: project.project.graphs[0],
+        savedCanvasData: project.canvas,
+      });
+    });
+  };
 
   handleSaveToPC = (canvasData) => {
     let updatedProject = Object.assign({}, this.state.selectedProject);
@@ -54,12 +93,14 @@ class App extends Component {
       () => {
         let data = { project: this.state.selectedProject, canvas: canvasData };
         const fileData = JSON.stringify(data);
-        const blob = new Blob([fileData], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.download = "filename.json";
-        link.href = url;
-        link.click();
+        const body = {
+          projectData: fileData,
+          name: this.state.selectedProject.name,
+          _id: this.state.selectedProject._id,
+          dateModified: moment().format("MMMM Do YYYY, h:mm a"),
+        };
+        console.log("Saving, ID: " + body._id);
+        post("/api/projectUpdate", body).then(this.setState({ saveSuccessful: true }));
       }
     );
   };
@@ -99,6 +140,12 @@ class App extends Component {
     );
   };
 
+  onProjectNameChange = (event) => {
+    let updatedProject = Object.assign({}, this.state.selectedProject);
+    updatedProject.name = event.target.value;
+    this.setState({ selectedProject: updatedProject });
+  };
+
   deleteClassFromProject = (classToDelete) => {
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
     updatedGraph.classNodeIds = this.state.selectedGraph.classNodeIds.filter(
@@ -122,8 +169,8 @@ class App extends Component {
   };
 
   addNewGraphToProject = () => {
-    let id = nextId();
-    let newGraph = { _id: id, name: "NewGraph_" + id, comments: [], classNodeIds: [] };
+    let id = "Graph_" + Date.now();
+    let newGraph = { _id: id, name: "NewGraph", comments: [], classNodeIds: [] };
     let updatedProject = Object.assign({}, this.state.selectedProject);
     updatedProject.graphs = this.state.selectedProject.graphs.concat([newGraph]);
     this.updateSelectedProject(updatedProject);
@@ -175,6 +222,10 @@ class App extends Component {
     this.setState({ selectedGraph: newGraph });
   };
 
+  onSaveBoxClose = () => {
+    this.setState({ saveSuccessful: false });
+  };
+
   // required method: whatever is returned defines what
   // shows up on screen
   render() {
@@ -190,24 +241,40 @@ class App extends Component {
           userStatus={this.state.userStatus}
           selectedGraph={this.state.selectedGraph}
           updateSelectedGraph={this.updateSelectedGraph}
+          selectedProject={this.state.selectedProject}
+          onProjectNameChange={this.onProjectNameChange}
+          saveSuccessful={this.state.saveSuccessful}
+          onSaveBoxClose={this.onSaveBoxClose}
         />
         <Router className="App-lower-container">
-          <GraphEditor
-            path="/"
-            userId={this.state.userId}
-            userStatus={this.state.userStatus}
-            selectedProject={this.state.selectedProject}
-            selectedGraph={this.state.selectedGraph}
-            addClassToProject={this.addClassToProject}
-            updateClass={this.updateClass}
-            updateSelectedGraph={this.updateSelectedGraph}
-            updateSelectedProject={this.updateSelectedProject}
-            addClassNodeToGraph={this.addClassNodeToGraph}
-            addNewGraphToProject={this.addNewGraphToProject}
-            selectGraph={this.selectGraph}
-            deleteClass={this.deleteClassFromProject}
-            handleSaveToPC={this.handleSaveToPC}
-          />
+          {this.state.selectedProject && this.state.userId ? (
+            <>
+              <GraphEditor
+                path="/"
+                userId={this.state.userId}
+                userStatus={this.state.userStatus}
+                selectedProject={this.state.selectedProject}
+                selectedGraph={this.state.selectedGraph}
+                addClassToProject={this.addClassToProject}
+                updateClass={this.updateClass}
+                updateSelectedGraph={this.updateSelectedGraph}
+                updateSelectedProject={this.updateSelectedProject}
+                addClassNodeToGraph={this.addClassNodeToGraph}
+                addNewGraphToProject={this.addNewGraphToProject}
+                selectGraph={this.selectGraph}
+                deleteClass={this.deleteClassFromProject}
+                handleSaveToPC={this.handleSaveToPC}
+                savedCanvasData={this.state.savedCanvasData}
+              />
+            </>
+          ) : (
+            <ProjectSelection
+              path="/"
+              createNewProject={this.createNewProject}
+              userId={this.state.userId}
+              loadProject={this.loadProject}
+            />
+          )}
           <NotFound default />
         </Router>
       </div>

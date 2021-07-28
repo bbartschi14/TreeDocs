@@ -12,7 +12,7 @@ import CreateCanvasItemButton from "./CreateCanvasItemButton";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import AddCommentIcon from "@material-ui/icons/AddComment";
 import DeleteIcon from "@material-ui/icons/Delete";
-import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import SaveIcon from "@material-ui/icons/Save";
 /**
  * Panel component for the main center canvas. Will be used to control
  * the placement, arrangement, connection, and selection of graph nodes.
@@ -82,8 +82,8 @@ class CanvasPanel extends Component {
       currentPlacingPosition: { x: 0, y: 0 },
       transformState: "none", // "none", "panning"
       mousePos: { x: 0, y: 0 },
-      canvasObjects: [{ _id: "001", nodes: [], connections: [], commentNodes: [] }],
-      currentCanvasObject: { _id: "001", nodes: [], connections: [], commentNodes: [] },
+      canvasObjects: [],
+      currentCanvasObject: undefined,
       isPlacingNode: false,
       isPlacingCommentNode: false,
     };
@@ -100,15 +100,18 @@ class CanvasPanel extends Component {
             : canvasObj
         ),
       },
-      () => this.props.handleSaveToPC(this.state.canvasObjects)
+      () => {
+        console.log(this.state.canvasObjects);
+        this.props.handleSaveToPC(this.state.canvasObjects);
+      }
     );
   };
 
   handleNewNodeButtonClicked = (event) => {
-    let id = nextId();
+    let id = Date.now();
     // Create node object
     let newNode = {
-      _id: id,
+      _id: "Class_" + id,
       type: "Class",
       savedPosition: {
         x:
@@ -233,7 +236,7 @@ class CanvasPanel extends Component {
   };
 
   handleNewCommentButtonClicked = (event) => {
-    let id = nextId();
+    let id = "Comement_" + Date.now();
     // Create comment node object
     let pos = {
       x:
@@ -383,7 +386,7 @@ class CanvasPanel extends Component {
 
     // Resync on graph changed by updating list of canvas objects and then updating the current canvas
     if (prevProps.selectedGraph._id != this.props.selectedGraph._id) {
-      console.log(prevProps.selectedGraph.classNodeIds);
+      //console.log(prevProps.selectedGraph.classNodeIds);
       this.setState(
         {
           canvasObjects: this.state.canvasObjects.map((canvasObj) =>
@@ -620,6 +623,15 @@ class CanvasPanel extends Component {
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyPress);
+
+    // Handle Project Loaded
+    if (this.props.savedCanvasData && this.props.savedCanvasData.length > 0) {
+      console.log(this.props.savedCanvasData);
+      this.setState({
+        canvasObjects: this.props.savedCanvasData,
+        currentCanvasObject: this.props.savedCanvasData[0],
+      });
+    }
   }
 
   handleKeyPress = (event) => {
@@ -641,6 +653,7 @@ class CanvasPanel extends Component {
   };
 
   render() {
+    if (this.state.canvasObjects.length == 0) return null;
     let nodesList = null;
     //console.log(JSON.stringify(this.state.currentCanvasObject.nodes));
     // console.log(JSON.stringify(this.state.currentCanvasObject.connections));
@@ -789,14 +802,14 @@ class CanvasPanel extends Component {
             </CreateCanvasItemButton>
           </div>
 
-          <div style={{ position: "absolute", left: "12px", top: "12px" }}>
+          <div style={{ position: "absolute", left: "12px", top: "64px" }}>
             <CreateCanvasItemButton
               isClickButton={true}
               handleClick={this.handleSaveButtonClick}
-              tooltipText={"Download Project"}
+              tooltipText={"Save Project"}
               tooltipRight={true}
             >
-              <SaveAltIcon />
+              <SaveIcon />
             </CreateCanvasItemButton>
           </div>
         </div>

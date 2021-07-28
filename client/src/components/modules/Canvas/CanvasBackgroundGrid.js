@@ -70,11 +70,11 @@ class CanvasBackgroundGrid extends Component {
     if (event.ctrlKey) {
       let bounds = this.backgroundCanvas.getBoundingClientRect();
       let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
-      this.props.createCommentObject(currentPosition, nextId());
+      this.props.createCommentObject(currentPosition, "Comment_" + Date.now());
     } else if (event.shiftKey) {
       let bounds = this.backgroundCanvas.getBoundingClientRect();
       let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
-      this.props.createNodeObject(currentPosition, nextId());
+      this.props.createNodeObject(currentPosition, "Node_" + Date.now());
     } else {
       this.props.deselectObjects();
     }

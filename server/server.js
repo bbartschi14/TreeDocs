@@ -34,10 +34,10 @@ const auth = require("./auth");
 // TODO change connection URL after setting up your own database
 const mongoConnectionURL = process.env.ATLAS_SRV;
 // TODO change database name to the name you chose
-const databaseName = "ldssa";
+const databaseName = "treedocs";
 
 // connect to mongodb
-/*mongoose
+mongoose
   .connect(mongoConnectionURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -45,7 +45,6 @@ const databaseName = "ldssa";
   })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.log(`Error connecting to MongoDB: ${err}`));
-*/
 
 // create a new express server
 const app = express();

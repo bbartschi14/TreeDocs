@@ -4,6 +4,7 @@ import GoogleLogin, { GoogleLogout } from "react-google-login";
 
 import "./NavBar.css";
 import GraphTitle from "./GraphTitle";
+import EditableText from "../Common/EditableText";
 
 // This identifies your web application to Google's authentication service
 const GOOGLE_CLIENT_ID = "584650489585-pbmvmtumr8ni4soas7gqcu74f69cl0cr.apps.googleusercontent.com";
@@ -19,6 +20,14 @@ class NavBar extends Component {
   render() {
     return (
       <nav className="NavBar-container u-default-shadow">
+        {this.props.saveSuccessful ? (
+          <div className="NavBar-saveSuccessful">
+            Save Successful{" "}
+            <span onClick={this.props.onSaveBoxClose} className="NavBar-saveSuccessfulClose">
+              x
+            </span>
+          </div>
+        ) : null}
         <div className="u-flex-alignCenter">
           <div className="NavBar-logo"></div>
           <div className="u-spacer-16"></div>
@@ -27,14 +36,35 @@ class NavBar extends Component {
           <div className="u-spacer-16"></div>
           <div className="u-spacer-16"></div>
 
-          <div className="NavBar-crumb NavBar-crumb-previous">Project</div>
-          <div className="NavBar-slash">/</div>
-          <div className="NavBar-crumb NavBar-crumb-current">{this.props.selectedGraph.name}</div>
+          {this.props.selectedProject && this.props.userId ? (
+            <div>
+              <EditableText
+                text={this.props.selectedProject.name}
+                customClass="NavBar-crumb"
+                iconSize="medium"
+                hideIcon={false}
+                hideUnderline={true}
+                onTextChanged={this.props.onProjectNameChange}
+              />
+            </div>
+          ) : null}
+
+          {/* {this.props.selectedGraph ? (
+            <>
+              <div className="NavBar-slash">/</div>
+              <div className="NavBar-crumb NavBar-crumb-current">
+                {this.props.selectedGraph.name}
+              </div>
+            </>
+          ) : null} */}
         </div>
-        <GraphTitle
-          selectedGraph={this.props.selectedGraph}
-          updateSelectedGraph={this.props.updateSelectedGraph}
-        />
+        {this.props.selectedGraph && this.props.userId ? (
+          <GraphTitle
+            selectedGraph={this.props.selectedGraph}
+            updateSelectedGraph={this.props.updateSelectedGraph}
+          />
+        ) : null}
+
         <div className="NavBar-linkContainer u-inlineBlock">
           {this.props.userId ? (
             <GoogleLogout

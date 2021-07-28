@@ -59,7 +59,7 @@ class CanvasNode extends Component {
     this.setState({ hasMoved: true });
     let deltaX = event.pageX - this.state.initialMousePosition.x;
     let deltaY = event.pageY - this.state.initialMousePosition.y;
-    console.log(deltaX);
+    ///console.log(deltaX);
 
     this.props.handleNodePositionChanged({
       x: this.state.initialPosition.x + deltaX,

@@ -68,3 +68,25 @@
 .NavBar-link + .NavBar-link {
   margin-left: var(--l);
 }
+
+.NavBar-saveSuccessful {
+  position: fixed;
+  padding: 8px 6px 8px 10px;
+  background-color: var(--background-main);
+  top: 16px;
+  left: 520px;
+  color: white;
+}
+
+.NavBar-saveSuccessfulClose {
+  margin-left: 8px;
+  padding: 2px 6px 2px 5px;
+  border: 2px solid white;
+  text-align: center;
+}
+
+.NavBar-saveSuccessfulClose:hover {
+  cursor: pointer;
+  border-color: gray;
+  color: gray;
+}

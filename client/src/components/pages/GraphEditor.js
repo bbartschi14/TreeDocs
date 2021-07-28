@@ -89,8 +89,8 @@ class GraphEditor extends Component {
   createClassObject = (id) => {
     // Creates a new class, then adds it to the selected graph
     let newClassObject = {
-      _id: id,
-      name: "NewClass-" + id,
+      _id: "Class_" + id,
+      name: "NewClass",
       parent: "Parent",
       description: "Blank Description",
       functions: [],
@@ -291,6 +291,7 @@ class GraphEditor extends Component {
           updateSelectedGraph={this.props.updateSelectedGraph}
           addClassNodeToGraph={this.props.addClassNodeToGraph}
           handleSaveToPC={this.props.handleSaveToPC}
+          savedCanvasData={this.props.savedCanvasData}
         >
           <HeirarchyPanel
             selectedProject={this.props.selectedProject}

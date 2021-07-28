@@ -45,7 +45,7 @@ class PropertiesPanel extends Component {
   };
 
   handleDescriptionPropertyChanged = (event) => {
-    console.log(event.target.value);
+    //console.log(event.target.value);
     let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
     updatedObject.description = event.target.value; // update the parent property, assign a new value
 
@@ -65,11 +65,11 @@ class PropertiesPanel extends Component {
   };
 
   handleAddFunctionButtonClicked = () => {
-    let id = nextId();
+    let id = "Function_" + Date.now();
     let newFunction = {
       parentName: this.props.selectedObject.name,
       parentId: this.props.selectedObject._id,
-      name: "NewFunction_" + id,
+      name: "NewFunction",
       _id: id,
       returnValue: { name: "DefaultParam", type: 1, typeName: "Int" },
       parameters: [],
@@ -78,11 +78,11 @@ class PropertiesPanel extends Component {
   };
 
   handleAddVariableButtonClicked = () => {
-    let id = nextId();
+    let id = "Variable_" + Date.now();
     let newVariable = {
       parent: this.props.selectedObject,
       _id: id,
-      parameterObject: { name: "NewVariable_" + id, type: 1, typeName: "Int" },
+      parameterObject: { name: "NewVariable", type: 1, typeName: "Int" },
     };
     this.handleAddVariableToClass(newVariable);
   };

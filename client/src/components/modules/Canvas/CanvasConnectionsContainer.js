@@ -74,12 +74,22 @@ class CanvasConnectionsContainer extends Component {
       let offset = 50;
 
       // Get start position
-      let startPosition = this.props.nodes.filter((node) => node._id == connections[i].startId)[0]
-        .savedPosition;
+      let startPosition = null;
+      let startingNodes = this.props.nodes.filter((node) => node._id == connections[i].startId);
+      if (startingNodes.length > 0) {
+        startPosition = startingNodes[0].savedPosition;
+      } else {
+        continue;
+      }
 
       // Get end position
-      let endPosition = this.props.nodes.filter((node) => node._id == connections[i].endId)[0]
-        .savedPosition;
+      let endPosition = null;
+      let endNodes = this.props.nodes.filter((node) => node._id == connections[i].endId);
+      if (endNodes.length > 0) {
+        endPosition = endNodes[0].savedPosition;
+      } else {
+        continue;
+      }
 
       // Flop offsets if needed
       if (connections[i].startIsInput) {
