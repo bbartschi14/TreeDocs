@@ -6,7 +6,7 @@ import "./NavBar.css";
 import GraphTitle from "./GraphTitle";
 
 // This identifies your web application to Google's authentication service
-const GOOGLE_CLIENT_ID = "473302145912-rdee01mcmup7f0otn3ocn2vv1a6is83f.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "584650489585-pbmvmtumr8ni4soas7gqcu74f69cl0cr.apps.googleusercontent.com";
 
 /**
  * The navigation bar at the top of all pages. Takes no props.
