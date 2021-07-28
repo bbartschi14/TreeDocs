@@ -12,10 +12,22 @@
 }
 
 .NavBar-title {
+  color: var(--background-main);
+  font-size: var(--m);
+  font-weight: 600;
+}
+
+.NavBar-crumb {
   color: var(--text-dark);
   font-size: var(--m);
   font-weight: 600;
-  margin: auto;
+}
+
+.NavBar-crumb-previous {
+  opacity: 0.2;
+}
+
+.NavBar-crumb-current {
 }
 
 .NavBar-logo {
@@ -23,4 +35,36 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
+}
+
+.NavBar-slash {
+  margin: 0px 4px;
+  font-size: 24px;
+  opacity: 0.2;
+}
+
+.NavBar-linkContainer {
+  margin-left: var(--l);
+}
+
+.NavBar-link,
+.NavBar-link:visited {
+  font-size: var(--xl);
+  font-weight: 600;
+  color: var(--darkgrey);
+  opacity: 1;
+  text-decoration: none;
+}
+
+.NavBar-link:hover {
+  opacity: 0.8;
+}
+
+.NavBar-link.NavBar-login {
+  opacity: 1;
+  z-index: 300;
+}
+
+.NavBar-link + .NavBar-link {
+  margin-left: var(--l);
 }

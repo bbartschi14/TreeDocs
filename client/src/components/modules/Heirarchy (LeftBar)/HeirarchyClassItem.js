@@ -9,6 +9,7 @@ import HeirarchyVariableItem from "./HeirarchyVariableItem";
  * Proptypes
  * @param {ClassObject} classObject class represented by this item
  * @param {(ClassObject) => ()} onClassClicked callback for being clicked
+ * @param {(ClassObject) => ()} deleteClass
  * @param {bool} isSelected used for styling
  * @param {bool} isPlaced
  * @param {int} indentLevel
@@ -31,11 +32,18 @@ class HeirarchyClassItem extends Component {
     }
   };
 
+  handleDeleteClass = (event) => {
+    this.props.deleteClass(this.props.classObject);
+  };
+
   render() {
     return (
       <HeirarchyItem
         name={this.props.classObject.name}
-        isSelected={this.props.isSelected}
+        isSelected={
+          this.props.selectedObjectType == "Class" &&
+          this.props.classObject._id == this.props.selectedObject?._id
+        }
         indentLevel={this.props.indentLevel}
         onItemClicked={this.handleClassSelected}
         isClickable={true}
@@ -43,6 +51,8 @@ class HeirarchyClassItem extends Component {
         isPlaced={this.props.isPlaced}
         isPlaceable={true}
         handleCreateNode={this.handleCreateNode}
+        isDeletable={true}
+        handleDelete={this.handleDeleteClass}
       >
         {this.props.classObject.functions.length > 0
           ? [
@@ -54,14 +64,23 @@ class HeirarchyClassItem extends Component {
                 isClickable={false}
                 iconName="List"
               >
-                {this.props.classObject.functions.map((funcObj) => (
-                  <HeirarchyFunctionItem
-                    key={`FunctionItem_${funcObj._id}`}
-                    functionObject={funcObj}
-                    isSelected={false}
-                    indentLevel={2}
-                  />
-                ))}
+                {this.props.classObject.functions.map((funcObj) => {
+                  let existingNodes = this.props.placedNodeIds.filter((id) => id == funcObj._id);
+                  return (
+                    <HeirarchyFunctionItem
+                      key={`FunctionItem_${funcObj._id}`}
+                      isSelected={
+                        this.props.selectedObjectType == "Function" &&
+                        funcObj._id == this.props.selectedObject._id
+                      }
+                      isPlaced={existingNodes.length > 0}
+                      functionObject={funcObj}
+                      indentLevel={2}
+                      handleCreateNodeFunction={this.props.handleCreateNodeFunction}
+                      onFunctionClicked={this.props.onFunctionClicked}
+                    />
+                  );
+                })}
               </HeirarchyItem>,
             ]
           : null}

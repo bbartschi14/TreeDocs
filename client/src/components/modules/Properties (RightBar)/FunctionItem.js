@@ -60,22 +60,29 @@ class FunctionItem extends Component {
   handleSaveAndClose = (event) => {
     this.props.updateFunctionInNodeObject(this.state.editedFunctionObject);
     this.handleCancel(event);
+    event.preventDefault();
   };
 
   handleCancel = (event) => {
     document.removeEventListener("keydown", this.handleKeyPress);
     this.setState({ isEditing: false, isFirstTime: false });
+    event.preventDefault();
   };
 
-  componentDidMount() {
+  handleSubmit = (event) => {
+    event.preventDefault();
+  };
+
+  componentWillUnmount() {
     // if (this.state.isFirstTime) {
     //   this.handleStartEditingClick(null);
     // }
+    document.removeEventListener("keydown", this.handleKeyPress);
   }
   render() {
     return this.state.isEditing && //|| this.state.isFirstTime) &&
       this.state.editedFunctionObject != null ? (
-      <form className="FunctionItem-editingContainer">
+      <form className="FunctionItem-editingContainer" onSubmit={this.handleSubmit}>
         <div className="FunctionItem-editingContainerHeader">Name</div>
         <div className="FunctionItem-subContainer">
           <EditableText

@@ -3,7 +3,8 @@
   pointer-events: auto;
   padding: 16px;
   outline-offset: 0px;
-  transition: outline-offset 0.1s;
+  outline: 2px dashed transparent;
+  transition: outline 0.1s;
   /* overflow: hidden; */
 }
 

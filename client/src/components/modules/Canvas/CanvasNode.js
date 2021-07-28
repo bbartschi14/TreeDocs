@@ -2,13 +2,16 @@ import React, { Component } from "react";
 import CanvasNodeInputCircle from "./CanvasInputOutput/CanvasNodeInputCircle";
 import CanvasNodeOutputCircle from "./CanvasInputOutput/CanvasNodeOutputCircle";
 import "./CanvasNode.css";
+import IconFromName from "../Common/IconFromName";
+import { VARIABLE_TYPES } from "../Constants.js";
+import PersonIcon from "@material-ui/icons/Person";
 
 /**
  * Node component for floating nodes in the canvas graph.
  *
  * Proptypes
  * @param {NodeObject} nodeObject object represented by this node
- * @param {ClassObject} classObject with id equal to the node
+ * @param {ClassObject/FunctionObject/VariableObject} dataObject with id equal to the node
  * @param {bool} isSelected
  * @param {(NodeObject) => ()} selectNodeWithGrid function to select a node
  * @param {(NodeObject, bool)=>()} createConnectionFromNode start connection. second argument is true if input, false if output
@@ -56,6 +59,7 @@ class CanvasNode extends Component {
     this.setState({ hasMoved: true });
     let deltaX = event.pageX - this.state.initialMousePosition.x;
     let deltaY = event.pageY - this.state.initialMousePosition.y;
+    console.log(deltaX);
 
     this.props.handleNodePositionChanged({
       x: this.state.initialPosition.x + deltaX,
@@ -103,6 +107,62 @@ class CanvasNode extends Component {
     } else {
       mainClass += " CanvasNode-unselected";
     }
+
+    let innerContent = null;
+    if (this.props.nodeObject.type == "Class") {
+      innerContent = (
+        <>
+          {/* <div className="CanvasNode-classIcon">
+            <PersonIcon style={{ fontSize: 50 }} />
+          </div> */}
+
+          <div className="CanvasNode-nameText">{this.props.dataObject.name}</div>
+          <div className="CanvasNode-parentText">{this.props.dataObject.parent}</div>
+        </>
+      );
+    } else if (this.props.nodeObject.type == "Function") {
+      innerContent = (
+        <>
+          <div className="CanvasNode-functionContainer">
+            <IconFromName
+              iconName="Function"
+              iconSize="large"
+              iconColor={VARIABLE_TYPES[this.props.dataObject.returnValue.type].color}
+              tooltipText={this.props.dataObject.returnValue.typeName}
+              tooltipUseAbsolute={true}
+            />
+            <div
+              className="CanvasNode-nameText"
+              style={{ marginLeft: "6px", marginRight: "6px", fontSize: "18px" }}
+            >
+              {this.props.dataObject.name}
+              <div className="CanvasNode-functionParentContainer">
+                {this.props.dataObject.parentName}
+              </div>
+            </div>
+            <div style={{ marginRight: "4px" }}>(</div>
+            {this.props.dataObject.parameters.map((param, i) => (
+              <>
+                <div style={{ marginTop: "4px" }}>
+                  <IconFromName
+                    key={"Item_" + i}
+                    iconName="Variable"
+                    iconColor={VARIABLE_TYPES[param.type].color}
+                    tooltipText={param.typeName + ": " + param.name}
+                    tooltipUseAbsolute={true}
+                  />
+                </div>
+                {i == this.props.dataObject.parameters.length - 1 ? null : (
+                  <div key={"Item2_" + i}>,</div>
+                )}
+              </>
+            ))}
+            <div style={{ marginLeft: "4px" }}>)</div>
+          </div>
+        </>
+      );
+    } else if (this.props.nodeObject.type == "Variable") {
+    }
     return (
       <div
         className={"CanvasNode-base "}
@@ -113,8 +173,7 @@ class CanvasNode extends Component {
       >
         <div className={"CanvasNode-container u-noselect " + shadow}>
           <div className={mainClass} onMouseDown={this.handleOnMouseDown}>
-            <div className="CanvasNode-nameText">{this.props.classObject.name}</div>
-            <div className="CanvasNode-parentText">{this.props.classObject.parent}</div>
+            {innerContent}
           </div>
 
           <div className="CanvasNode-circleContainer CanvasNode-input">

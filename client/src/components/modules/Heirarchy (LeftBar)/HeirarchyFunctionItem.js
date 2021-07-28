@@ -8,6 +8,7 @@ import { VARIABLE_TYPES } from "../Constants.js";
  * Proptypes
  * @param {FunctionObject} functionObject function represented by this item
  * @param {bool} isSelected used for styling
+ * @param {bool} isPlaced
  * @param {int} indentLevel
  */
 class HeirarchyFunctionItem extends Component {
@@ -15,7 +16,16 @@ class HeirarchyFunctionItem extends Component {
     super(props);
   }
 
-  handleFunctionSelected = (event) => {};
+  handleFunctionSelected = (event) => {
+    this.props.onFunctionClicked(this.props.functionObject);
+  };
+
+  handleCreateNodeFunction = (event) => {
+    if (!this.props.isPlaced) {
+      this.handleFunctionSelected();
+      this.props.handleCreateNodeFunction(event, this.props.functionObject);
+    }
+  };
 
   render() {
     return (
@@ -27,8 +37,10 @@ class HeirarchyFunctionItem extends Component {
         iconName="Function"
         iconColor={VARIABLE_TYPES[this.props.functionObject.returnValue.type].color}
         iconTooltip={this.props.functionObject.returnValue.typeName}
-        isClickable={false}
-        isPlaceable={false}
+        isClickable={true}
+        isPlaced={this.props.isPlaced}
+        isPlaceable={true}
+        handleCreateNode={this.handleCreateNodeFunction}
       />
     );
   }

@@ -14,6 +14,7 @@ import "./IconFromName.css";
  * @param {string} iconSize
  * @param {string} iconColor
  * @param {string} tooltipText
+ * @param {bool} tooltipUseAbsolute
  */
 class IconFromName extends Component {
   constructor(props) {
@@ -94,11 +95,16 @@ class IconFromName extends Component {
           <div
             ref={this.tooltipRef}
             className="IconFromName-tooltipContainer u-default-shadow"
-            style={{
-              left:
-                this.state.tooltipPos.x - this.state.tooltipWidth * this.state.tooltipPercentOffset,
-              top: this.state.tooltipPos.y - 30,
-            }}
+            style={
+              this.props.tooltipUseAbsolute
+                ? { position: "absolute", left: "0px", bottom: "105%" }
+                : {
+                    left:
+                      this.state.tooltipPos.x -
+                      this.state.tooltipWidth * this.state.tooltipPercentOffset,
+                    top: this.state.tooltipPos.y - 30,
+                  }
+            }
           >
             {this.props.tooltipText}
           </div>

@@ -19,10 +19,17 @@ class NavBar extends Component {
   render() {
     return (
       <nav className="NavBar-container u-default-shadow">
-        <div className="u-flex">
+        <div className="u-flex-alignCenter">
           <div className="NavBar-logo"></div>
           <div className="u-spacer-16"></div>
           <div className="NavBar-title u-inlineBlock">TreeDocs</div>
+          <div className="u-spacer-16"></div>
+          <div className="u-spacer-16"></div>
+          <div className="u-spacer-16"></div>
+
+          <div className="NavBar-crumb NavBar-crumb-previous">Project</div>
+          <div className="NavBar-slash">/</div>
+          <div className="NavBar-crumb NavBar-crumb-current">{this.props.selectedGraph.name}</div>
         </div>
         <GraphTitle
           selectedGraph={this.props.selectedGraph}

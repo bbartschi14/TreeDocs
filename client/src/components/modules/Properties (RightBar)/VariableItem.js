@@ -39,11 +39,17 @@ class VariableItem extends Component {
   handleSaveAndClose = (event) => {
     this.props.updateVariableInNodeObject(this.state.editedVariableObject);
     this.handleCancel(event);
+    event.preventDefault();
   };
 
   handleCancel = (event) => {
     document.removeEventListener("keydown", this.handleKeyPress);
     this.setState({ isEditing: false });
+    event.preventDefault();
+  };
+
+  handleSubmit = (event) => {
+    event.preventDefault();
   };
 
   componentDidMount() {
@@ -54,7 +60,7 @@ class VariableItem extends Component {
 
   render() {
     return this.state.isEditing ? (
-      <form className="FunctionItem-editingContainer">
+      <form className="FunctionItem-editingContainer" onSubmit={this.handleSubmit}>
         <FunctionItemParameter
           parameterIndex={0}
           selectedParam={this.state.editedVariableObject.parameterObject}

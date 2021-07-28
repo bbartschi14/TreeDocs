@@ -42,13 +42,35 @@ class App extends Component {
     };
   }
 
+  handleSaveToPC = (canvasData) => {
+    let updatedProject = Object.assign({}, this.state.selectedProject);
+    updatedProject.graphs = this.state.selectedProject.graphs.map((g) =>
+      g._id == this.state.selectedGraph._id ? this.state.selectedGraph : g
+    );
+    this.setState(
+      {
+        selectedProject: updatedProject,
+      },
+      () => {
+        let data = { project: this.state.selectedProject, canvas: canvasData };
+        const fileData = JSON.stringify(data);
+        const blob = new Blob([fileData], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = "filename.json";
+        link.href = url;
+        link.click();
+      }
+    );
+  };
+
   componentDidMount() {
-    /*get("/api/whoami").then((user) => {
+    get("/api/whoami").then((user) => {
       if (user._id) {
         // they are registed in the database, and currently logged in.
         this.setState({ userId: user._id, userName: user.name, userStatus: user.status });
       }
-    });*/
+    });
   }
 
   handleLogin = (res) => {
@@ -77,6 +99,22 @@ class App extends Component {
     );
   };
 
+  deleteClassFromProject = (classToDelete) => {
+    let updatedGraph = Object.assign({}, this.state.selectedGraph);
+    updatedGraph.classNodeIds = this.state.selectedGraph.classNodeIds.filter(
+      (nodeId) => nodeId != classToDelete._id
+    );
+    this.updateSelectedGraph(updatedGraph);
+
+    let updatedProject = Object.assign({}, this.state.selectedProject);
+    updatedProject.classes = this.state.selectedProject.classes.filter(
+      (c) => c._id != classToDelete._id
+    );
+    this.setState({
+      selectedProject: updatedProject,
+    });
+  };
+
   addClassNodeToGraph = (id) => {
     let updatedGraph = Object.assign({}, this.state.selectedGraph);
     updatedGraph.classNodeIds = this.state.selectedGraph.classNodeIds.concat([id]);
@@ -97,9 +135,7 @@ class App extends Component {
     });
   };
 
-  updateSelectedClass = (updatedClass) => {
-    // Requires that we set both the selected node state and the nodes array
-    // of the selected graph
+  updateClass = (updatedClass) => {
     let updatedProject = Object.assign({}, this.state.selectedProject);
     updatedProject.classes = this.state.selectedProject.classes.map((c) =>
       c._id == updatedClass._id ? updatedClass : c
@@ -121,6 +157,21 @@ class App extends Component {
   };
 
   selectGraph = (newGraph) => {
+    // Delete any nodeIds associated to classes deleted
+    newGraph.classNodeIds = newGraph.classNodeIds.filter((nodeId) => {
+      let exists = false;
+      for (var i = 0; i < this.state.selectedProject.classes.length; i++) {
+        if (this.state.selectedProject.classes[i]._id == nodeId) {
+          exists = true;
+        }
+        for (var j = 0; j < this.state.selectedProject.classes[i].functions.length; j++) {
+          if (this.state.selectedProject.classes[i].functions[j]._id == nodeId) {
+            exists = true;
+          }
+        }
+      }
+      return exists;
+    });
     this.setState({ selectedGraph: newGraph });
   };
 
@@ -148,12 +199,14 @@ class App extends Component {
             selectedProject={this.state.selectedProject}
             selectedGraph={this.state.selectedGraph}
             addClassToProject={this.addClassToProject}
-            updateSelectedClass={this.updateSelectedClass}
+            updateClass={this.updateClass}
             updateSelectedGraph={this.updateSelectedGraph}
             updateSelectedProject={this.updateSelectedProject}
             addClassNodeToGraph={this.addClassNodeToGraph}
             addNewGraphToProject={this.addNewGraphToProject}
             selectGraph={this.selectGraph}
+            deleteClass={this.deleteClassFromProject}
+            handleSaveToPC={this.handleSaveToPC}
           />
           <NotFound default />
         </Router>

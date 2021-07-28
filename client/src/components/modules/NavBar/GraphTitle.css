@@ -1,8 +1,5 @@
 .GraphTitle-container {
-  position: fixed;
-  width: 100%;
   top: 4px;
-  z-index: 200;
   display: flex;
   justify-content: center;
   align-items: center;

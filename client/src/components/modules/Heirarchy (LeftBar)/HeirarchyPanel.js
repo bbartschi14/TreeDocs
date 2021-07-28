@@ -28,6 +28,10 @@ class HeirarchyPanel extends Component {
     this.props.selectClass(classObject);
   };
 
+  handleFunctionSelected = (functionObject) => {
+    this.props.selectFunction(functionObject);
+  };
+
   handleClickHeirarchy = (event) => {
     this.setState({ selectedIndex: 0 });
   };
@@ -44,14 +48,16 @@ class HeirarchyPanel extends Component {
         <HeirarchyClassItem
           key={`Item_${classObj._id}`}
           classObject={classObj}
-          isSelected={
-            this.props.selectedObjectType == "Class" &&
-            classObj._id == this.props.selectedObject?._id
-          }
+          selectedObject={this.props.selectedObject}
+          selectedObjectType={this.props.selectedObjectType}
           indentLevel={0}
           onClassClicked={this.handleClassSelected}
+          onFunctionClicked={this.handleFunctionSelected}
           isPlaced={existingNodes.length > 0}
           handleCreateNode={this.props.handleCreateNode}
+          handleCreateNodeFunction={this.props.handleCreateNodeFunction}
+          deleteClass={this.props.deleteClass}
+          placedNodeIds={this.props.selectedGraph.classNodeIds}
         />
       );
     });
@@ -80,7 +86,7 @@ class HeirarchyPanel extends Component {
         className="HeirarchyPanel-outerContainer"
         style={{ width: this.props.panelWidth + "px" }}
       >
-        <div className="HeirarchyPanel-headings">
+        <div className="HeirarchyPanel-headings u-noselect">
           <div
             onClick={this.handleClickHeirarchy}
             className={

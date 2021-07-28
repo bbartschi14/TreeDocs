@@ -11,6 +11,8 @@ import CreateCanvasItemButton from "./CreateCanvasItemButton";
 
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import AddCommentIcon from "@material-ui/icons/AddComment";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
 /**
  * Panel component for the main center canvas. Will be used to control
  * the placement, arrangement, connection, and selection of graph nodes.
@@ -41,13 +43,16 @@ import AddCommentIcon from "@material-ui/icons/AddComment";
 class CanvasPanel extends Component {
   /**
    * @typedef CanvasObject
+   * @property {string} _id // Should match current graph
    * @property {NodeObject[]} nodes
    * @property {ConnectionObject[]} connections
+   * @property {CommentNodeObject[]} commentNodes
    */
 
   /**
    * @typedef NodeObject // Considered to be a Class Node
-   * @property {string} _id // Must correspond to a Class Object
+   * @property {string} _id // Must correspond to a Class, Function, or Variable Object
+   * @property {string} type "Class", "Function", or "Variable"
    * @property {IntPoint} savedPosition
    */
 
@@ -77,9 +82,8 @@ class CanvasPanel extends Component {
       currentPlacingPosition: { x: 0, y: 0 },
       transformState: "none", // "none", "panning"
       mousePos: { x: 0, y: 0 },
-      nodes: [],
-      connections: [],
-      commentNodes: [],
+      canvasObjects: [{ _id: "001", nodes: [], connections: [], commentNodes: [] }],
+      currentCanvasObject: { _id: "001", nodes: [], connections: [], commentNodes: [] },
       isPlacingNode: false,
       isPlacingCommentNode: false,
     };
@@ -87,19 +91,34 @@ class CanvasPanel extends Component {
     this.scrollingRef = React.createRef();
   }
 
+  handleSaveButtonClick = (event) => {
+    this.setState(
+      {
+        canvasObjects: this.state.canvasObjects.map((canvasObj) =>
+          this.state.currentCanvasObject._id == canvasObj._id
+            ? this.state.currentCanvasObject
+            : canvasObj
+        ),
+      },
+      () => this.props.handleSaveToPC(this.state.canvasObjects)
+    );
+  };
+
   handleNewNodeButtonClicked = (event) => {
     let id = nextId();
     // Create node object
     let newNode = {
       _id: id,
+      type: "Class",
       savedPosition: {
         x:
           event.pageX - this.containerRef.current.offsetLeft + this.scrollingRef.current.scrollLeft,
         y: event.pageY - this.containerRef.current.offsetTop + this.scrollingRef.current.scrollTop,
       },
     };
+
+    this.addNodetoCurrentCanvas(newNode);
     this.setState({
-      nodes: this.state.nodes.concat([newNode]),
       mousePos: { x: event.pageX, y: event.pageY },
     });
 
@@ -110,9 +129,20 @@ class CanvasPanel extends Component {
     event.preventDefault();
   };
 
+  createNodeObject = (pos, id) => {
+    let newNode = {
+      _id: id,
+      type: "Class",
+      savedPosition: pos,
+    };
+    this.addNodetoCurrentCanvas(newNode);
+    this.props.createClassObject(id);
+  };
+
   handleCreateNodeFromClass = (event, classObject) => {
     let newNode = {
       _id: classObject._id,
+      type: "Class",
       savedPosition: {
         x:
           event.pageX - this.containerRef.current.offsetLeft + this.scrollingRef.current.scrollLeft,
@@ -122,11 +152,43 @@ class CanvasPanel extends Component {
 
     this.props.addClassNodeToGraph(classObject._id);
     document.addEventListener("mouseup", this.handleDonePlacing);
-
+    this.addNodetoCurrentCanvas(newNode);
     this.setState({
       isPlacingNode: true,
-      nodes: this.state.nodes.concat([newNode]),
       mousePos: { x: event.pageX, y: event.pageY },
+    });
+  };
+
+  handleCreateNodeFromFunction = (event, functionObject) => {
+    this.props.selectFunction(functionObject);
+    console.log("Start creating function node");
+    let newNode = {
+      _id: functionObject._id,
+      type: "Function",
+      savedPosition: {
+        x:
+          event.pageX - this.containerRef.current.offsetLeft + this.scrollingRef.current.scrollLeft,
+        y: event.pageY - this.containerRef.current.offsetTop + this.scrollingRef.current.scrollTop,
+      },
+    };
+    this.props.addClassNodeToGraph(functionObject._id);
+    document.addEventListener("mouseup", this.handleDonePlacing);
+    this.addNodetoCurrentCanvas(newNode);
+    this.setState({
+      isPlacingNode: true,
+      mousePos: { x: event.pageX, y: event.pageY },
+    });
+  };
+
+  addNodetoCurrentCanvas = (newNode) => {
+    this.updateNodesInCurrentGraph(this.state.currentCanvasObject.nodes.concat([newNode]));
+  };
+
+  updateNodesInCurrentGraph = (newNodes) => {
+    let updatedCanvas = Object.assign({}, this.state.currentCanvasObject);
+    updatedCanvas.nodes = newNodes;
+    this.setState({
+      currentCanvasObject: updatedCanvas,
     });
   };
 
@@ -137,24 +199,32 @@ class CanvasPanel extends Component {
 
   selectNodeWithGrid = (nodeObj) => {
     // Handle grid logic then call super select prop function
-    let selectedClass = this.props.selectedProject.classes.filter((c) => c._id == nodeObj._id)[0];
-    this.props.selectClass(selectedClass);
+    if (nodeObj.type == "Class") {
+      let selectedClass = this.props.selectedProject.classes.filter((c) => c._id == nodeObj._id)[0];
+      this.props.selectClass(selectedClass);
+    } else if (nodeObj.type == "Function") {
+      for (var i = 0; i < this.props.selectedProject.classes.length; i++) {
+        for (var j = 0; j < this.props.selectedProject.classes[i].functions.length; j++) {
+          if (this.props.selectedProject.classes[i].functions[j]._id == nodeObj._id) {
+            let selectedFunction = this.props.selectedProject.classes[i].functions[j];
+            this.props.selectFunction(selectedFunction);
+          }
+        }
+      }
+    }
   };
 
   updateSelectedNode = (newNodeObject) => {
-    //console.log(JSON.stringify(newNodeObject));
-    let updatedNodes = Object.assign({}, this.state.nodes);
-    updatedNodes = this.state.nodes.map((node) =>
-      node._id == newNodeObject._id ? newNodeObject : node
+    this.updateNodesInCurrentGraph(
+      this.state.currentCanvasObject.nodes.map((node) =>
+        node._id == newNodeObject._id ? newNodeObject : node
+      )
     );
-    this.setState({
-      nodes: updatedNodes,
-    });
   };
 
   handleNodePositionChanged = (newPosition) => {
     //console.log(newPosition);
-    let selectedNode = this.state.nodes.filter(
+    let selectedNode = this.state.currentCanvasObject.nodes.filter(
       (node) => node._id == this.props.selectedObject._id
     )[0];
     let updatedObject = Object.assign({}, selectedNode);
@@ -188,6 +258,20 @@ class CanvasPanel extends Component {
     event.preventDefault();
   };
 
+  addCommentNodetoCurrentCanvas = (newCommentNode) => {
+    this.updateCommentsInCurrentGraph(
+      this.state.currentCanvasObject.commentNodes.concat([newCommentNode])
+    );
+  };
+
+  updateCommentsInCurrentGraph = (newComments) => {
+    let updatedCanvas = Object.assign({}, this.state.currentCanvasObject);
+    updatedCanvas.commentNodes = newComments;
+    this.setState({
+      currentCanvasObject: updatedCanvas,
+    });
+  };
+
   handleDonePlacingComment = (event) => {
     this.setState({ isPlacingCommentNode: false });
     document.removeEventListener("mouseup", this.handleDonePlacingComment);
@@ -201,19 +285,17 @@ class CanvasPanel extends Component {
     };
     this.props.createCommentObject(id);
 
-    this.setState({ commentNodes: this.state.commentNodes.concat([newCommentNode]) });
+    this.addCommentNodetoCurrentCanvas(newCommentNode);
 
     return newCommentNode;
   };
 
   updateSelectedCommentNode = (newCommentNode) => {
-    let updatedCommentNodes = Object.assign({}, this.state.commentNodes);
-    updatedCommentNodes = this.state.commentNodes.map((node) =>
-      node._id == newCommentNode._id ? newCommentNode : node
+    this.updateCommentsInCurrentGraph(
+      this.state.currentCanvasObject.commentNodes.map((node) =>
+        node._id == newCommentNode._id ? newCommentNode : node
+      )
     );
-    this.setState({
-      commentNodes: updatedCommentNodes,
-    });
   };
 
   handleScroll = (event) => {
@@ -268,13 +350,28 @@ class CanvasPanel extends Component {
     this.setState({ transformState: "none" });
   };
 
+  // updateCanvasObjectInAllCanvases = (newCanvas) => {
+  //   this.setState({
+  //     canvasObjects: this.state.canvasObjects.map((canvasObj) =>
+  //       newCanvas._id == canvasObj._id ? newCanvas : canvasObj
+  //     ),
+  //   });
+  // };
+
+  createNewCanvasForNewGraph = (newId) => {
+    let newCanvas = { _id: newId, nodes: [], commentNodes: [], connections: [] };
+
+    this.setState({ canvasObjects: this.state.canvasObjects.concat([newCanvas]) });
+    return newCanvas;
+  };
+
   componentDidUpdate(prevProps, prevState) {
     // Handle class deleted
     let newClasses = this.props.selectedProject.classes;
     let prevClasses = prevProps.selectedProject.classes;
     if (newClasses.length < prevClasses.length) {
       console.log("new: " + newClasses.length + ", old: " + prevClasses.length);
-      this.onNodeDeleted(newClasses, prevClasses);
+      this.onNodesDeleted(newClasses, prevClasses);
     }
 
     // Handle comment deleted
@@ -284,11 +381,41 @@ class CanvasPanel extends Component {
       this.onCommentDeleted(newComments, prevComments);
     }
 
-    // Resync on graph changed
-    console.log(prevProps.selectedGraph._id);
-    console.log(this.props.selectedGraph._id);
+    // Resync on graph changed by updating list of canvas objects and then updating the current canvas
     if (prevProps.selectedGraph._id != this.props.selectedGraph._id) {
-      this.setState({ nodes: [] });
+      console.log(prevProps.selectedGraph.classNodeIds);
+      this.setState(
+        {
+          canvasObjects: this.state.canvasObjects.map((canvasObj) =>
+            this.state.currentCanvasObject._id == canvasObj._id
+              ? this.state.currentCanvasObject
+              : canvasObj
+          ),
+        },
+        () => {
+          let newMatchingCanvases = this.state.canvasObjects.filter(
+            (c) => c._id == this.props.selectedGraph._id
+          );
+          if (newMatchingCanvases.length > 0) {
+            // Clean Up nodes and connections on load
+            //console.log("Old Version " + JSON.stringify(newMatchingCanvases));
+            //console.log("New Version: " + this.props.selectedGraph.classNodeIds);
+            newMatchingCanvases[0].nodes = newMatchingCanvases[0].nodes.filter((node) =>
+              this.props.selectedGraph.classNodeIds.includes(node._id)
+            );
+            newMatchingCanvases[0].connections = newMatchingCanvases[0].connections.filter(
+              (conn) =>
+                this.props.selectedGraph.classNodeIds.includes(conn.startId) &&
+                this.props.selectedGraph.classNodeIds.includes(conn.endId)
+            );
+            this.setState({ currentCanvasObject: newMatchingCanvases[0] });
+          } else {
+            // Create New canvas
+            let newCanvas = this.createNewCanvasForNewGraph(this.props.selectedGraph._id);
+            this.setState({ currentCanvasObject: newCanvas });
+          }
+        }
+      );
     }
 
     if (this.state.transformState == "panning" && prevState.transformState == "none") {
@@ -303,14 +430,14 @@ class CanvasPanel extends Component {
   deleteSelectedClassNode = () => {
     let deletedId = this.props.selectedObject._id;
 
-    this.setState({
-      nodes: this.state.nodes.filter((node) => node._id != deletedId),
-      connections: this.state.connections.filter(
+    this.updateConnectionsInCurrentGraph(
+      this.state.currentCanvasObject.connections.filter(
         (conn) => conn.startId != deletedId && conn.endId != deletedId
-      ),
-    });
-
-    this.setState({});
+      )
+    );
+    this.updateNodesInCurrentGraph(
+      this.state.currentCanvasObject.nodes.filter((node) => node._id != deletedId)
+    );
 
     let updatedGraph = Object.assign({}, this.props.selectedGraph);
     updatedGraph.classNodeIds = this.props.selectedGraph.classNodeIds.filter(
@@ -318,13 +445,10 @@ class CanvasPanel extends Component {
     );
 
     this.props.updateSelectedGraph(updatedGraph);
-
-    //this.addToastNotification("Node deleted");
-    //this.clearSelection();
   };
 
-  onNodeDeleted = (newClasses, prevClasses) => {
-    let deletedId = "";
+  onNodesDeleted = (newClasses, prevClasses) => {
+    let deletedIds = [];
     for (var i = 0; i < prevClasses.length; i++) {
       let found = false;
       for (var j = 0; j < newClasses.length; j++) {
@@ -333,16 +457,21 @@ class CanvasPanel extends Component {
         }
       }
       if (!found) {
-        deletedId = prevClasses[i]._id;
-        break;
+        deletedIds = deletedIds.concat(prevClasses[i].functions.map((fObj) => fObj._id));
+        deletedIds.push(prevClasses[i]._id);
       }
     }
 
+    let updatedCanvas = Object.assign({}, this.state.currentCanvasObject);
+    updatedCanvas.connections = this.state.currentCanvasObject.connections.filter(
+      (conn) => !deletedIds.includes(conn.startId) && !deletedIds.includes(conn.endId)
+    );
+    updatedCanvas.nodes = this.state.currentCanvasObject.nodes.filter(
+      (node) => !deletedIds.includes(node._id)
+    );
+
     this.setState({
-      nodes: this.state.nodes.filter((node) => node._id != deletedId),
-      connections: this.state.connections.filter(
-        (conn) => conn.startId != deletedId && conn.endId != deletedId
-      ),
+      currentCanvasObject: updatedCanvas,
     });
   };
 
@@ -361,9 +490,9 @@ class CanvasPanel extends Component {
       }
     }
 
-    this.setState({
-      commentNodes: this.state.commentNodes.filter((node) => node._id != deletedId),
-    });
+    this.updateCommentsInCurrentGraph(
+      this.state.currentCanvasObject.commentNodes.filter((node) => node._id != deletedId)
+    );
   };
 
   /*************************** */
@@ -423,11 +552,11 @@ class CanvasPanel extends Component {
     let startExists = false;
     let endExists = false;
 
-    for (var i = 0; i < this.state.nodes.length; i++) {
-      if (this.state.nodes[i]._id == connectionObj.startId) {
+    for (var i = 0; i < this.state.currentCanvasObject.nodes.length; i++) {
+      if (this.state.currentCanvasObject.nodes[i]._id == connectionObj.startId) {
         startExists = true;
       }
-      if (this.state.nodes[i]._id == connectionObj.endId) {
+      if (this.state.currentCanvasObject.nodes[i]._id == connectionObj.endId) {
         endExists = true;
       }
     }
@@ -438,7 +567,7 @@ class CanvasPanel extends Component {
 
     // Filter any connections that are the same two nodes
 
-    let existingConnections = this.state.connections.filter(function (conn) {
+    let existingConnections = this.state.currentCanvasObject.connections.filter(function (conn) {
       if (conn.startIsInput == connectionObj.startIsInput) {
         if (conn.startId == connectionObj.startId && conn.endId == connectionObj.endId) {
           return true;
@@ -462,19 +591,29 @@ class CanvasPanel extends Component {
   };
 
   addConnectionToCanvas = (newConnection) => {
-    this.setState({ connections: this.state.connections.concat([newConnection]) });
+    this.updateConnectionsInCurrentGraph(
+      this.state.currentCanvasObject.connections.concat([newConnection])
+    );
   };
 
   deleteSelectedConnection = () => {
-    this.setState({
-      connections: this.state.connections.filter(
+    this.updateConnectionsInCurrentGraph(
+      this.state.currentCanvasObject.connections.filter(
         (conn) =>
           conn.startId != this.props.selectedObject.startId ||
           conn.endId != this.props.selectedObject.endId
-      ),
-    });
+      )
+    );
 
     this.props.deselectObjects();
+  };
+
+  updateConnectionsInCurrentGraph = (newConnections) => {
+    let updatedCanvas = Object.assign({}, this.state.currentCanvasObject);
+    updatedCanvas.connections = newConnections;
+    this.setState({
+      currentCanvasObject: updatedCanvas,
+    });
   };
 
   /***************** */
@@ -484,43 +623,70 @@ class CanvasPanel extends Component {
   }
 
   handleKeyPress = (event) => {
-    if (event.key == "Delete" && this.props.selectedObjectType == "Connection") {
+    if (event.key == "Delete") {
+      this.handleDeleteLogic();
+    }
+  };
+
+  handleDeleteLogic = () => {
+    if (this.props.selectedObjectType == "Connection") {
       this.deleteSelectedConnection();
-    } else if (event.key == "Delete" && this.props.selectedObjectType == "Class") {
+    } else if (this.props.selectedObjectType == "Class") {
       this.deleteSelectedClassNode();
+    } else if (this.props.selectedObjectType == "Function") {
+      this.deleteSelectedClassNode();
+    } else if (this.props.selectedObjectType == "Comment") {
+      this.props.deleteSelectedComment();
     }
   };
 
   render() {
     let nodesList = null;
-    console.log(JSON.stringify(this.state.nodes));
-    nodesList = this.state.nodes.map((nodeObj, i) => {
-      let associatedClassList = this.props.selectedGraph.classNodeIds.filter(
+    //console.log(JSON.stringify(this.state.currentCanvasObject.nodes));
+    // console.log(JSON.stringify(this.state.currentCanvasObject.connections));
+
+    nodesList = this.state.currentCanvasObject.nodes.map((nodeObj, index) => {
+      let dataObjectFound = null;
+      let associatedList = [];
+      associatedList = this.props.selectedGraph.classNodeIds.filter(
         (classId) => classId == nodeObj._id
       );
-      let classObjectFound = {};
-      if (associatedClassList.length > 0) {
-        classObjectFound = this.props.selectedProject.classes.filter(
-          (c) => c._id == associatedClassList[0]
-        )[0];
+      if (associatedList.length > 0) {
+        if (nodeObj.type == "Class") {
+          dataObjectFound = this.props.selectedProject.classes.filter(
+            (c) => c._id == associatedList[0]
+          )[0];
+        } else if (nodeObj.type == "Function") {
+          for (var i = 0; i < this.props.selectedProject.classes.length; i++) {
+            for (var j = 0; j < this.props.selectedProject.classes[i].functions.length; j++) {
+              if (this.props.selectedProject.classes[i].functions[j]._id == associatedList[0]) {
+                dataObjectFound = this.props.selectedProject.classes[i].functions[j];
+              }
+            }
+          }
+        }
       }
 
-      return associatedClassList.length > 0 ? (
+      return associatedList.length > 0 && dataObjectFound != null ? (
         <CanvasNode
           key={`Node_${nodeObj._id}`}
           nodeObject={nodeObj}
-          classObject={classObjectFound}
+          dataObject={dataObjectFound}
           isSelected={
-            this.props.selectedObjectType == "Class" &&
+            (this.props.selectedObjectType == "Class" ||
+              this.props.selectedObjectType == "Function" ||
+              this.props.selectedObjectType == "Variable") &&
             nodeObj._id == this.props.selectedObject?._id
           }
           selectNodeWithGrid={this.selectNodeWithGrid}
           createConnectionFromNode={this.createConnectionFromNode}
           handleNodeConnectionHovered={this.handleNodeConnectionHovered}
           handleNodePositionChanged={this.handleNodePositionChanged}
-          isBeingPlaced={i == this.state.nodes.length - 1 && this.state.isPlacingNode}
+          isBeingPlaced={
+            index == this.state.currentCanvasObject.nodes.length - 1 && this.state.isPlacingNode
+          }
           placingMousePos={
-            i == this.state.nodes.length - 1 && this.state.isPlacingNode
+            index == this.state.currentCanvasObject.nodes.length - 1 && this.state.isPlacingNode
               ? this.state.mousePos
               : { x: 0, y: 0 }
           }
@@ -532,6 +698,7 @@ class CanvasPanel extends Component {
       <>
         {React.cloneElement(this.props.children, {
           handleCreateNode: this.handleCreateNodeFromClass,
+          handleCreateNodeFunction: this.handleCreateNodeFromFunction,
         })}
         <div
           className={"CanvasPanel-container"}
@@ -551,10 +718,11 @@ class CanvasPanel extends Component {
                 gridSize={60}
                 deselectObjects={this.props.deselectObjects}
                 createCommentObject={this.createCommentNodeObject}
+                createNodeObject={this.createNodeObject}
               />
 
               <CanvasCommentsContainer
-                commentNodes={this.state.commentNodes}
+                commentNodes={this.state.currentCanvasObject.commentNodes}
                 isPlacingCommentNode={this.state.isPlacingCommentNode}
                 mousePos={this.state.mousePos}
                 selectedGraph={this.props.selectedGraph}
@@ -566,8 +734,9 @@ class CanvasPanel extends Component {
               />
 
               <CanvasConnectionsContainer
-                connections={this.state.connections}
-                nodes={this.state.nodes}
+                canvasObject={this.state.currentCanvasObject}
+                connections={this.state.currentCanvasObject.connections}
+                nodes={this.state.currentCanvasObject.nodes}
                 connectionStartNode={this.state.connectionStartNode}
                 connectionStartType={this.state.connectionStartType}
                 currentPlacingPosition={this.state.currentPlacingPosition}
@@ -593,6 +762,8 @@ class CanvasPanel extends Component {
             <CreateCanvasItemButton
               onCreateStart={this.handleNewNodeButtonClicked}
               isDragging={this.state.isPlacingNode}
+              tooltipText={"Add Class"}
+              hotkeyText={"Shift+Click"}
             >
               <PersonAddIcon />
             </CreateCanvasItemButton>
@@ -600,8 +771,32 @@ class CanvasPanel extends Component {
             <CreateCanvasItemButton
               onCreateStart={this.handleNewCommentButtonClicked}
               isDragging={this.state.isPlacingCommentNode}
+              tooltipText={"Add Comment"}
+              hotkeyText={"Ctrl+Click"}
             >
               <AddCommentIcon />
+            </CreateCanvasItemButton>
+          </div>
+          <div style={{ position: "absolute", right: "24px", top: "240px" }}>
+            <CreateCanvasItemButton
+              isClickButton={true}
+              handleClick={this.handleDeleteLogic}
+              tooltipText={"Delete Selected"}
+              useSecondaryColor={true}
+              hotkeyText={"Delete"}
+            >
+              <DeleteIcon />
+            </CreateCanvasItemButton>
+          </div>
+
+          <div style={{ position: "absolute", left: "12px", top: "12px" }}>
+            <CreateCanvasItemButton
+              isClickButton={true}
+              handleClick={this.handleSaveButtonClick}
+              tooltipText={"Download Project"}
+              tooltipRight={true}
+            >
+              <SaveAltIcon />
             </CreateCanvasItemButton>
           </div>
         </div>

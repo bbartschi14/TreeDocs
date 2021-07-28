@@ -32,6 +32,9 @@ class PropertiesPanel extends Component {
   handleNamePropertyChanged = (event) => {
     let updatedObject = Object.assign({}, this.props.selectedObject); // creating copy of selected node prop
     updatedObject.name = event.target.value; // update the name property, assign a new value
+    for (var i = 0; i < updatedObject.functions.length; i++) {
+      updatedObject.functions[i].parentName = event.target.value;
+    }
     this.props.updateSelectedClass(updatedObject);
   };
 
@@ -64,7 +67,8 @@ class PropertiesPanel extends Component {
   handleAddFunctionButtonClicked = () => {
     let id = nextId();
     let newFunction = {
-      parent: this.props.selectedObject,
+      parentName: this.props.selectedObject.name,
+      parentId: this.props.selectedObject._id,
       name: "NewFunction_" + id,
       _id: id,
       returnValue: { name: "DefaultParam", type: 1, typeName: "Int" },
@@ -204,6 +208,20 @@ class PropertiesPanel extends Component {
             commentObject={this.props.selectedObject}
             updateSelectedComment={this.props.updateSelectedComment}
           />
+        </div>
+      );
+    } else if (this.props.selectedObjectType == "Function") {
+      content = (
+        <div className="PropertiesPanel-container">
+          <div className="PropertiesPanel-innerVerticalBox u-flexColumn">
+            <div style={{ height: "8px" }}></div>
+            <FunctionItem
+              functionObject={this.props.selectedObject}
+              updateFunctionInNodeObject={this.props.updateSelectedFunction}
+            />
+
+            {/* <div style={{ height: "8px" }}></div> */}
+          </div>
         </div>
       );
     }

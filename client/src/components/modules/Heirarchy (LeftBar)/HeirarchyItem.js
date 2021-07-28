@@ -3,7 +3,8 @@ import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import "./HeirarchyItem.css";
 import IconFromName from "../Common/IconFromName";
-
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import DeleteIcon from "@material-ui/icons/Delete";
 /**
  * Base Item component for the heirarchy list. Will be wrapped by other components
  * to define each possible item, e.g. HeirarchyClassItem
@@ -18,6 +19,7 @@ import IconFromName from "../Common/IconFromName";
  * @param {string} iconName
  * @param {string} iconColor
  * @param {string} iconTooltip
+ * @param {bool} isDeletable
  */
 class HeirarchyItem extends Component {
   constructor(props) {
@@ -36,7 +38,16 @@ class HeirarchyItem extends Component {
   };
 
   handlePlaceExisting = (event) => {
-    this.props.handleCreateNode(event);
+    if (event.button == 0) {
+      this.props.handleCreateNode(event);
+    }
+  };
+
+  handleDeletePressed = (event) => {
+    if (event.button == 0) {
+      this.props.handleDelete();
+      event.stopPropagation();
+    }
   };
 
   render() {
@@ -55,12 +66,15 @@ class HeirarchyItem extends Component {
           }
           onClick={this.handleOnClick}
         >
+          {this.props.isDeletable ? (
+            <DeleteIcon onClick={this.handleDeletePressed} className="HeirarchyItem-floatBar" />
+          ) : null}
           {this.props.isPlaceable ? (
-            <div
+            <AddCircleIcon
               onMouseDown={this.handlePlaceExisting}
-              className="HeirarchyItem-placedIcon"
-              style={this.props.isPlaced ? { opacity: ".15" } : { opacity: ".75" }}
-            ></div>
+              className="HeirarchyItem-addIcon"
+              style={this.props.isPlaced ? { opacity: 0.05, color: "gray" } : {}}
+            />
           ) : null}
           {indentSpacer}
           <div className="HeirarchyItem-arrowContainer">

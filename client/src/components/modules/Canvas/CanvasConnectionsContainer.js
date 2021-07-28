@@ -96,7 +96,8 @@ class CanvasConnectionsContainer extends Component {
           isSelected={
             this.props.selectedObjectType == "Connection" &&
             connections[i].startId == this.props.selectedObject?.startId &&
-            connections[i].endId == this.props.selectedObject?.endId
+            connections[i].endId == this.props.selectedObject?.endId &&
+            connections[i].startIsInput == this.props.selectedObject?.startIsInput
           }
           key={`ConnectionPath_${connections[i].startId}_to_${connections[i].endId}_${connections[i].startIsInput}`}
         />

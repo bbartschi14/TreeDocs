@@ -108,6 +108,7 @@ form {
 }
 
 .u-flex-alignCenter {
+  display: flex;
   align-items: center;
 }
 

@@ -30,7 +30,7 @@ class GraphEditor extends Component {
 
   /**
    * @typedef FunctionObject
-   * @property {ClassObject} parent
+   * @property {string} parentName
    * @property {string} _id
    * @property {string} name
    * @property {ParameterObject} returnValue
@@ -91,7 +91,7 @@ class GraphEditor extends Component {
     let newClassObject = {
       _id: id,
       name: "NewClass-" + id,
-      parent: "NewParent-" + id,
+      parent: "Parent",
       description: "Blank Description",
       functions: [],
       variables: [],
@@ -110,6 +110,13 @@ class GraphEditor extends Component {
     });
   };
 
+  selectFunction = (functionObj) => {
+    this.setState({
+      selectedObject: functionObj,
+      selectedObjectType: "Function",
+    });
+  };
+
   selectConnection = (connectionObj) => {
     this.setState({
       selectedObject: connectionObj,
@@ -121,7 +128,19 @@ class GraphEditor extends Component {
     // Requires that we set both the selected node state and the nodes array
     // of the selected graph
     this.selectClass(updatedClass);
-    this.props.updateSelectedClass(updatedClass);
+    this.props.updateClass(updatedClass);
+  };
+
+  updateSelectedFunction = (updatedFunction) => {
+    this.selectFunction(updatedFunction);
+    let correspondingClass = this.props.selectedProject.classes.filter(
+      (c) => c._id == updatedFunction.parentId
+    )[0];
+    let updatedClass = Object.assign({}, correspondingClass);
+    updatedClass.functions = correspondingClass.functions.map((f) =>
+      f._id == updatedFunction._id ? updatedFunction : f
+    );
+    this.props.updateClass(updatedClass);
   };
 
   /******** Comments ***************/
@@ -243,6 +262,11 @@ class GraphEditor extends Component {
     });
   };
 
+  handleDeleteClassFromProject = (classToDelete) => {
+    this.clearSelection();
+    this.props.deleteClass(classToDelete);
+  };
+
   render() {
     return (
       <>
@@ -250,7 +274,9 @@ class GraphEditor extends Component {
           selectedProject={this.props.selectedProject}
           createClassObject={this.createClassObject}
           createCommentObject={this.createCommentObject}
+          deleteSelectedComment={this.deleteSelectedComment}
           selectClass={this.selectClass}
+          selectFunction={this.selectFunction}
           selectedGraph={this.props.selectedGraph}
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
@@ -264,6 +290,7 @@ class GraphEditor extends Component {
           deselectObjects={this.clearSelection}
           updateSelectedGraph={this.props.updateSelectedGraph}
           addClassNodeToGraph={this.props.addClassNodeToGraph}
+          handleSaveToPC={this.props.handleSaveToPC}
         >
           <HeirarchyPanel
             selectedProject={this.props.selectedProject}
@@ -271,16 +298,19 @@ class GraphEditor extends Component {
             selectedObject={this.state.selectedObject}
             selectedObjectType={this.state.selectedObjectType}
             selectClass={this.selectClass}
+            selectFunction={this.selectFunction}
             panelWidth={this.state.heirarchyPanelWidth}
             handleResize={this.handleResizeHeirarchyPanel}
             addNewGraphToProject={this.props.addNewGraphToProject}
             selectGraph={this.props.selectGraph}
+            deleteClass={this.handleDeleteClassFromProject}
           />
         </CanvasPanel>
         <PropertiesPanel
           selectedObject={this.state.selectedObject}
           selectedObjectType={this.state.selectedObjectType}
           updateSelectedClass={this.updateSelectedClass}
+          updateSelectedFunction={this.updateSelectedFunction}
           panelWidth={this.state.propertiesPanelWidth}
           handleResize={this.handleResizePropertiesPanel}
           updateSelectedComment={this.updateSelectedComment}

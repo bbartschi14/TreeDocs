@@ -22,7 +22,38 @@
 
 .CanvasNode-innerContainer {
   padding: 12px 24px 18px 24px;
+  height: 78px;
+  box-sizing: border-box;
   white-space: nowrap; /* Chrome */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.CanvasNode-classIcon {
+  position: absolute;
+  bottom: -10px;
+  left: -7px;
+  /* bottom: -10px; */
+  opacity: 0.5;
+  color: var(--background-main-transparent);
+}
+
+.CanvasNode-functionContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 4px 0px;
+}
+
+.CanvasNode-functionParentContainer {
+  position: absolute;
+  font-weight: var(--weight-s);
+  font-size: 11px;
+  color: gray;
+  font-style: italic;
 }
 
 .CanvasNode-selected {
@@ -46,7 +77,8 @@
 }
 
 .CanvasNode-parentText {
-  font-size: var(--m);
+  font-size: 14px;
+  color: gray;
 }
 
 .CanvasNode-circleContainer {

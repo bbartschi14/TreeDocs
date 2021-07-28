@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import nextId from "react-id-generator";
 
 import "./CanvasBackgroundGrid.css";
 
@@ -67,9 +68,13 @@ class CanvasBackgroundGrid extends Component {
 
   handleClick = (event) => {
     if (event.ctrlKey) {
-      // let bounds = this.backgroundCanvas.getBoundingClientRect();
-      // let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
-      // this.props.createCommentObject(currentPosition);
+      let bounds = this.backgroundCanvas.getBoundingClientRect();
+      let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
+      this.props.createCommentObject(currentPosition, nextId());
+    } else if (event.shiftKey) {
+      let bounds = this.backgroundCanvas.getBoundingClientRect();
+      let currentPosition = { x: event.pageX - bounds.left, y: event.pageY - bounds.top };
+      this.props.createNodeObject(currentPosition, nextId());
     } else {
       this.props.deselectObjects();
     }
